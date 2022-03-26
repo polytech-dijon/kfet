@@ -1,16 +1,9 @@
 import { initState } from "./reducer"
-import type { ThemeType } from "../utils/theme"
 
 const actions = {
-  SETTHEME: "SETTHEME",
   SETACCESSTOKEN: "SETACCESSTOKEN",
-  SETUSER: "SETUSER",
   LOGIN: "LOGIN",
   LOGOUT: "LOGOUT",
-}
-
-export function setTheme(theme: ThemeType) {
-  return { type: actions.SETTHEME, theme }
 }
 
 export function setAccessToken(accessToken: string) {

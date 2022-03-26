@@ -6,7 +6,6 @@ import { PersistGate } from 'redux-persist/integration/react'
 import { store, persistor } from '../redux/store'
 import { Toaster } from 'react-hot-toast'
 import Navbar from '../components/Navbar'
-import Footer from '../components/Footer'
 import api from '../services/api'
 import type { AppProps } from 'next/app'
 import type { RootState } from '../redux/store'
@@ -38,9 +37,8 @@ function MyApp({ Component, pageProps }: AppProps) {
       <link rel="icon" href="/favicon.ico" />
     </Head>
     <div className="flex flex-col min-h-screen bg-background-light text-black">
-      {/* {accessToken ? <Navbar /> : null} */}
+      {accessToken ? <Navbar /> : null}
       <Component {...pageProps} />
-      {/* {accessToken ? <Footer /> : null} */}
     </div>
     <Toaster />
   </div>

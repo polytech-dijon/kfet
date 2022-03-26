@@ -8,11 +8,11 @@ import api from '../services/api'
 import type { NextPage } from 'next'
 import type { SigninData } from '../types/authentication'
 
-const Page404: NextPage = () => {
+const Login: NextPage = () => {
   const router = useRouter()
   const dispatch = useDispatch()
 
-  const [password, setPassword] = useState('')
+  const [password, setPassword] = useState('mega_kfet')
 
   async function handleSubmit() {
     try {
@@ -49,4 +49,4 @@ const Page404: NextPage = () => {
   )
 }
 
-export default Page404
+export default Login

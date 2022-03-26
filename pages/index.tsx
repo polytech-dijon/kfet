@@ -1,8 +1,9 @@
 import Head from 'next/head'
+import Link from 'next/link'
 import { withAuthentication } from '../components/withAuthentication'
 import type { NextPage } from 'next'
 
-const Page404: NextPage = () => {
+const Home: NextPage = () => {
   return (
     <>
       <Head>
@@ -10,10 +11,21 @@ const Page404: NextPage = () => {
         <meta name="description" content="Cette page n'existe pas." />
       </Head>
       <div className="container grow flex flex-col justify-center items-center">
-        <h1 className="text-4xl font-semibold">Accueil</h1>
+        <div className="mt-8 grid grid-cols-2 gap-4 justify-items-center">
+          <Link href="/checkout">
+            <a className="p-8 card text-xl uppercase w-full text-center font-semibold">
+              Ouvrir la caisse
+            </a>
+          </Link>
+          <Link href="/stocks">
+            <a className="p-8 card text-xl uppercase w-full text-center font-semibold">
+              Gestion des stocks
+            </a>
+          </Link>
+        </div>
       </div>
     </>
   )
 }
 
-export default withAuthentication(Page404)
+export default withAuthentication(Home)
