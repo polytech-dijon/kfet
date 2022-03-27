@@ -7,29 +7,27 @@ datasource db {
     url                  = env("DATABASE_URL")
 }
 
-enum PaiementMethod {
-    CASH
-    CARD
-    LYDIA
-}
-
 model Article {
-    id              Int             @id @default(autoincrement())
+    id              Int      @id @default(autoincrement())
     name            String
-    description     String
-    price           Decimal
+    description     String?
+    sell_price      Decimal
+    category        String
     products        Int[]
+    image           String?
 }
 
 model Product {
-    id              Int            @id @default(autoincrement())
+    id              Int      @id @default(autoincrement())
     name            String
     quantity        Int
+    buying_price    Decimal
 }
 
 model Sale {
-    id              Int            @id @default(autoincrement())
-    paiement_method PaiementMethod
+    id              Int      @id @default(autoincrement())
+    paiement_method String
     articles        Int[]
-    created_at      DateTime
+    sell_price      Decimal
+    created_at      DateTime @default(now())
 }

@@ -11,7 +11,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "dotenv -e .env.local -- npx prisma migrate dev"
+    "db:migrate": "dotenv -e .env.local -- npx prisma migrate dev",
+    "db:seed": "dotenv -e .env.local -- ts-node --compilerOptions \"{\\\"target\\\": \\\"ES2017\\\", \\\"module\\\": \\\"commonjs\\\"}\" prisma/seed.ts"
   },
   "dependencies": {
     "@headlessui/react": "^1.4.2",
