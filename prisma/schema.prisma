@@ -1,0 +1,35 @@
+generator client {
+    provider        = "prisma-client-js"
+}
+
+datasource db {
+    provider             = "postgresql"
+    url                  = env("DATABASE_URL")
+}
+
+enum PaiementMethod {
+    CASH
+    CARD
+    LYDIA
+}
+
+model Article {
+    id              Int             @id @default(autoincrement())
+    name            String
+    description     String
+    price           Decimal
+    products        Int[]
+}
+
+model Product {
+    id              Int            @id @default(autoincrement())
+    name            String
+    quantity        Int
+}
+
+model Sale {
+    id              Int            @id @default(autoincrement())
+    paiement_method PaiementMethod
+    articles        Int[]
+    created_at      DateTime
+}

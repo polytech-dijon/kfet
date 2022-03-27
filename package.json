@@ -10,10 +10,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed": "dotenv -e .env.local -- npx prisma migrate dev"
   },
   "dependencies": {
     "@headlessui/react": "^1.4.2",
+    "@prisma/client": "^3.11.1",
     "framer-motion": "^6.2.6",
     "isomorphic-unfetch": "^3.1.0",
     "jsonwebtoken": "^8.5.1",
@@ -40,6 +42,7 @@
     "@types/validator": "^13.7.1",
     "autoprefixer": "^10.4.0",
     "dotenv": "^10.0.0",
+    "dotenv-cli": "^5.1.0",
     "eslint": "7",
     "eslint-config-next": "12.0.2",
     "postcss": "^8.4.5",
