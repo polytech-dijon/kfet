@@ -12,7 +12,7 @@ const Login: NextPage = () => {
   const router = useRouter()
   const dispatch = useDispatch()
 
-  const [password, setPassword] = useState('mega_kfet')
+  const [password, setPassword] = useState('')
 
   async function handleSubmit() {
     try {

@@ -8,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   if (!password)
     return res.status(400).json({ ok: false, error: 'No password provided' })
 
-  if (password !== 'mega_kfet')
+  if (password !== process.env.LOGIN_PASSWORD)
     return res.status(400).json({ ok: false, error: 'Invalid password' })
 
   const jwtData: JwtData = {
