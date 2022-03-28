@@ -29,6 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       sell_price: new Prisma.Decimal(card.map((item: IArticle) => item.sell_price).reduce((a: number, b: number) => a + b)),
     }
   })
+  prisma.$disconnect()
 
   const products = card.map((item: IArticle) => item.products).flat()
   const differentProducts = [...new Set(products)]

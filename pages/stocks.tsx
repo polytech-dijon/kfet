@@ -7,7 +7,7 @@ const Stocks: NextPage = () => {
     <>
       <Head>
         <title>MEGA KFET - Stocks</title>
-        <meta name="description" content="Cette page n'existe pas." />
+        <meta name="description" content="Gestion des stocks de la MEGA KFET" />
       </Head>
       <div className="container grow flex flex-col justify-center items-center">
         <div className="mt-8 grid grid-cols-2 gap-4 justify-items-center">

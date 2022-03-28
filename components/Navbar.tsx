@@ -24,6 +24,10 @@ export const links: NavbarLink[] = [
     text: "Stocks",
     href: "/stocks",
   },
+  {
+    text: "Ventes",
+    href: "/sales",
+  },
 ]
 
 const NavBar = () => {

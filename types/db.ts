@@ -15,6 +15,7 @@ export enum Category {
 
 export type Article = Prisma.ArticleGetPayload<{}>
 export type Product = Prisma.ProductGetPayload<{}>
+export type Sale = Prisma.SaleGetPayload<{}>
 
 type Identity<T> = { [P in keyof T]: T[P] }
 type Replace<T, K extends keyof T, TReplace> = Identity<Pick<T, Exclude<keyof T, K>> & {
@@ -22,3 +23,4 @@ type Replace<T, K extends keyof T, TReplace> = Identity<Pick<T, Exclude<keyof T,
 }>
 export type IArticle = Replace<Article, 'sell_price', number>
 export type IProduct = Replace<Product, 'buying_price', number>
+export type ISale = Replace<Sale, 'sell_price', number>

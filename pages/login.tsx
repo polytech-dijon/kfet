@@ -33,7 +33,7 @@ const Login: NextPage = () => {
     <>
       <Head>
         <title>MEGA KFET - Connexion</title>
-        <meta name="description" content="Cette page n'existe pas." />
+        <meta name="description" content="Connexion à la MEGA KFET" />
       </Head>
       <div className="container grow flex flex-col justify-center items-center">
         <div>

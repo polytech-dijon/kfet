@@ -10,6 +10,8 @@ export function mapPrismaItems(items: any[]) {
 		for (let key in item) {
 			if (item[key] instanceof Prisma.Decimal)
 				result[key] = item[key].toNumber()
+			else if (item[key] instanceof Date)
+				result[key] = item[key].getTime()
 		}
 		return result
 	})

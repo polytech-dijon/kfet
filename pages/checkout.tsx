@@ -47,7 +47,7 @@ const Checkout: NextPage<CheckoutProps> = ({ articles, products }) => {
     <>
       <Head>
         <title>MEGA KFET</title>
-        <meta name="description" content="Cette page n'existe pas." />
+        <meta name="description" content="Gestion de la caisse" />
       </Head>
       <div className="grow flex items-stretch">
         <ArticleList articles={articles} addArticle={addArticle} />
@@ -153,6 +153,7 @@ export const getServerSideProps: GetServerSideProps<CheckoutProps> = async () =>
     prisma.article.findMany(),
     prisma.product.findMany(),
   ])
+  prisma.$disconnect()
   return {
     props: {
       articles: mapPrismaItems(articles),

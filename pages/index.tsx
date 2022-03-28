@@ -8,7 +8,7 @@ const Home: NextPage = () => {
     <>
       <Head>
         <title>MEGA KFET</title>
-        <meta name="description" content="Cette page n'existe pas." />
+        <meta name="description" content="Site de la KFET de l'ESIREM" />
       </Head>
       <div className="container grow flex flex-col justify-center items-center">
         <div className="mt-8 grid grid-cols-2 gap-4 justify-items-center">
@@ -20,6 +20,11 @@ const Home: NextPage = () => {
           <Link href="/stocks">
             <a className="p-8 card text-xl uppercase w-full text-center font-semibold">
               Gestion des stocks
+            </a>
+          </Link>
+          <Link href="/sales">
+            <a className="p-8 card text-xl uppercase w-full text-center font-semibold">
+              Ventes
             </a>
           </Link>
         </div>
