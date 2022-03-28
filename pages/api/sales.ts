@@ -52,7 +52,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   res.status(200).json({ ok: true, data: {
     articles: mapPrismaItems(articles),
     sales: mapPrismaItems(sales),
-    // pageCount: Math.ceil(saleCount / limit),
-    pageCount: 20,
+    pageCount: Math.ceil(saleCount / limit),
   } })
 }
