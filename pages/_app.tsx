@@ -1,5 +1,5 @@
 import '../styles/globals.css'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Head from 'next/head'
 import { Provider, useSelector } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
@@ -27,19 +27,28 @@ function AppContainer(props: AppProps) {
 
 function MyApp({ Component, pageProps }: AppProps) {
   const accessToken: string | null = useSelector((state: RootState) => state.accessToken)
+  const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
     api.setToken(accessToken)
+    setLoaded(true)
   }, [])
 
   return <div>
     <Head>
       <link rel="icon" href="/favicon.ico" />
     </Head>
-    <div className="flex flex-col min-h-screen bg-background-light text-black">
-      {accessToken ? <Navbar /> : null}
-      <Component {...pageProps} />
-    </div>
+    {!loaded && (
+      <div className="flex flex-col min-h-screen bg-background-light text-black">
+        Chargement...
+      </div>
+    )}
+    {loaded && (
+      <div className="flex flex-col min-h-screen bg-background-light text-black">
+        {accessToken ? <Navbar /> : null}
+        <Component {...pageProps} />
+      </div>
+    )}
     <Toaster />
   </div>
 }

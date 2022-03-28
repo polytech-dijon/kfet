@@ -17,7 +17,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     return res.status(400).json({ ok: false, error: 'Invalid token' })
   }
 
-  const { card, paiementMethod }: { card: IArticle[], paiementMethod: PaiementMethod } = req.body
+  const { data } = req.body
+  if (!data)
+    return res.status(400).json({ ok: false, error: 'Invalid data' })
+  const { card, paiementMethod }: { card: IArticle[], paiementMethod: PaiementMethod } = data
   if (!card || !paiementMethod)
     return res.status(400).json({ ok: false, error: 'Invalid data' })
 

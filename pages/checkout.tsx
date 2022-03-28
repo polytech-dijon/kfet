@@ -1,12 +1,12 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Head from 'next/head'
 import toast from 'react-hot-toast'
 import { PrismaClient } from '@prisma/client'
 import { RiAddLine, RiSubtractLine } from 'react-icons/ri'
 import { withAuthentication } from '../components/withAuthentication'
 import api from '../services/api'
-import { mapPrismaItems, Round } from '../utils'
-import { categories, categoryNames } from '../utils/categories'
+import { articlesById, mapPrismaItems, Round } from '../utils'
+import { categories, categoryNames, paiementMethods, paiementMethodsNames } from '../utils/db-enum'
 import { PaiementMethod } from '../types/db'
 import type { GetServerSideProps, NextPage } from 'next'
 import type { IArticle, IProduct } from '../types/db'
@@ -21,9 +21,6 @@ const Checkout: NextPage<CheckoutProps> = ({ articles, products }) => {
   function addArticle(article: IArticle) {
     setCard(card.concat(article))
   }
-  function resetArticles() {
-    setCard([])
-  }
 
   async function submitCard(paiementMethod: PaiementMethod) {
     if (card.length === 0)
@@ -31,8 +28,10 @@ const Checkout: NextPage<CheckoutProps> = ({ articles, products }) => {
 
     try {
       await api.post('/api/checkout', {
-        card,
-        paiementMethod
+        data: {
+          card,
+          paiementMethod
+        }
       })
   
       setCard([])
@@ -86,18 +85,7 @@ const CardOverview = ({ card, setCard, submitCard }: CardOverviewProps) => {
 
   const total = Round(card.reduce((acc, article) => acc + article.sell_price, 0), 2)
 
-  const cardById: { quantity: number, article: IArticle }[] = []
-  for (let article of card) {
-    const found = cardById.find((a) => a.article.id === article.id)
-    if (found)
-      found.quantity++
-    else {
-      cardById.push({
-        quantity: 1,
-        article
-      })
-    }
-  }
+  const cardById = useMemo(() => articlesById(card), [card])
 
   function addArticle(article: IArticle) {
     setCard(card.concat({ ...article }))
@@ -136,9 +124,9 @@ const CardOverview = ({ card, setCard, submitCard }: CardOverviewProps) => {
         <h4 className="text-2xl text-right">Total : {total}€</h4>
       </div>
       <div className="mt-4 grid grid-cols-3 gap-4">
-        <button className={`text-xl ${selectedPaimentMethod === PaiementMethod.CASH ? 'button' : 'button-outline'}`} onClick={() => setSelectPaimentMethod(PaiementMethod.CASH)}>Espèce</button>
-        <button className={`text-xl ${selectedPaimentMethod === PaiementMethod.LYDIA ? 'button' : 'button-outline'}`} onClick={() => setSelectPaimentMethod(PaiementMethod.LYDIA)}>Lydia</button>
-        <button className={`text-xl ${selectedPaimentMethod === PaiementMethod.CARD ? 'button' : 'button-outline'}`} onClick={() => setSelectPaimentMethod(PaiementMethod.CARD)}>Carte bleue</button>
+        {paiementMethods.map((paiementMethod, key) => (
+          <button key={key} className={`text-xl ${selectedPaimentMethod === paiementMethod ? 'button' : 'button-outline'}`} onClick={() => setSelectPaimentMethod(paiementMethod)}>{paiementMethodsNames[paiementMethod]}</button>
+        ))}
       </div>
       <div className="mt-2 flex justify-center">
         <button className="button bg-green-700 w-full text-2xl" onClick={() => submitCard(selectedPaimentMethod)}>Valider</button>
