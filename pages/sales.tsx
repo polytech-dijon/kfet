@@ -89,46 +89,75 @@ const Sales: NextPage = () => {
             </table>
           </div>
           <div className="m-4">
-            <ul className="inline-flex">
-              <li>
-                <button
-                  className="py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                  onClick={() => {
-                    if (salesPage > 0)
-                      setSalesPage(salesPage - 1)
-                  }}
-                >
-                  Précédant
-                </button>
-              </li>
-              {new Array(pageCount).fill(0).map((_, page) => {
-                if (page === salesPage) {
-                  return <li key={page}>
-                    <button aria-current="page" className="py-2 px-3 leading-tight text-blue-600 bg-blue-50 border border-gray-300 hover:bg-blue-100 hover:text-blue-700">{page + 1}</button>
-                  </li>
-                }
-                else {
-                  return <li key={page}>
-                    <button onClick={() => setSalesPage(page)} className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">{page + 1}</button>
-                  </li>
-                }
-              })}
-              <li>
-                <button
-                  className="py-2 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                  onClick={() => {
-                    if (salesPage < pageCount - 1)
-                      setSalesPage(salesPage + 1)
-                  }}
-                >
-                  Suivant
-                </button>
-              </li>
-            </ul>
+            <SalesTablePagination salesPage={salesPage} setSalesPage={setSalesPage} pageCount={pageCount} />
           </div>
         </div>}
       </div>
     </>
+  )
+}
+
+type SalesTablePaginationProps = {
+  salesPage: number;
+  setSalesPage: (page: number) => void;
+  pageCount: number;
+}
+const SalesTablePagination = ({ salesPage, setSalesPage, pageCount }: SalesTablePaginationProps) => {
+  let pageArray: number[] = [];
+  if (pageCount > 10) {
+    if (salesPage < 5) {
+      pageArray = [0, 1, 2, 3, 4, 5, 6, -1, pageCount - 2, pageCount - 1]
+    } else if (salesPage > pageCount - 5) {
+      pageArray = [0, 1, -1, pageCount - 7, pageCount - 6, pageCount - 5, pageCount - 4, pageCount - 3, pageCount - 2, pageCount - 1]
+    } else {
+      pageArray = [0, 1, -1,  salesPage - 2, salesPage - 1, salesPage, salesPage + 1, salesPage + 2, -1, pageCount - 1]
+    }
+  }
+  else
+    pageArray = new Array(pageCount).fill(0).map((_, i) => i)
+
+  return (
+    <ul className="inline-flex">
+      <li>
+        <button
+          className="py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+          onClick={() => {
+            if (salesPage > 0)
+              setSalesPage(salesPage - 1)
+          }}
+        >
+          Précédant
+        </button>
+      </li>
+      {pageArray.map((page, key) => {
+        if (page === salesPage) {
+          return <li key={key}>
+            <button aria-current="page" className="py-2 px-3 leading-tight text-blue-600 bg-blue-50 border border-gray-300 hover:bg-blue-100 hover:text-blue-700">{page + 1}</button>
+          </li>
+        }
+        else if (page === -1) {
+          return <li key={key}>
+            <button onClick={() => setSalesPage(page)} className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">...</button>
+          </li>
+        }
+        else {
+          return <li key={key}>
+            <button onClick={() => setSalesPage(page)} className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">{page + 1}</button>
+          </li>
+        }
+      })}
+      <li>
+        <button
+          className="py-2 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+          onClick={() => {
+            if (salesPage < pageCount - 1)
+              setSalesPage(salesPage + 1)
+          }}
+        >
+          Suivant
+        </button>
+      </li>
+    </ul>
   )
 }
 
