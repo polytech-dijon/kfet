@@ -21,6 +21,9 @@ const Checkout: NextPage<CheckoutProps> = ({ articles, products }) => {
   function addArticle(article: IArticle) {
     setCard(card.concat(article))
   }
+  function resetArticles() {
+    setCard([])
+  }
 
   async function submitCard(paiementMethod: PaiementMethod) {
     if (card.length === 0)
@@ -64,7 +67,7 @@ const ArticleList = ({ articles, addArticle }: ArticleListProps) => {
       <h2 className="px-4 my-2 text-2xl font-semibold">{categoryNames[category]}</h2>
       <div className="grid grid-cols-4 gap-4 p-4">
         {articles.filter((article) => article.category === category).map((article, key2) => (
-          <div key={key2} className="p-6 card cursor-pointer text-2xl flex justify-center items-center h-32" onClick={() => addArticle(article)}>
+          <div key={key2} className="p-6 card cursor-pointer text-2xl flex justify-center items-center h-32 select-none" onClick={() => addArticle(article)}>
             <h3>{article.name}</h3>
           </div>
         ))}
@@ -124,6 +127,9 @@ const CardOverview = ({ card, setCard, submitCard }: CardOverviewProps) => {
           </div>
         </div>
       ))}
+      {cardById.length > 0 && <div className="flex justify-center mt-2">
+        <button className="text-red-600 underline" onClick={() => setCard([])}>Supprimer les articles</button>
+      </div>}
     </div>
     <div className="p-4 flex flex-col justify-between">
       <div className="flex flex-col">
