@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Fragment } from 'react'
 import Head from 'next/head'
 import toast from 'react-hot-toast'
 import { withAuthentication } from '../components/withAuthentication'
@@ -192,14 +192,25 @@ type SalesResumeProps = {
 }
 const SalesResume = ({ sales, articles, salesDate }: SalesResumeProps) => {
   const totalSale = sales.reduce((acc, sale) => acc + sale.sell_price, 0)
+  const totalSaleByPaiementType = sales.reduce((acc: any, sale) => {
+    acc[sale.paiement_method] = (acc[sale.paiement_method] || 0) + sale.sell_price
+    return acc
+  }, {})
   const saleArticlesId = sales.map((sale) => sale.articles).flat()
-  
+
   return <div className="my-4">
     <h2 className="text-3xl">Résumé de la journée :</h2>
     <div className="flex flex-col">
       <h3 className="my-2 text-2xl">Chiffre d&apos;affaire :</h3>
-      <div className="text-xl">
-        {Round(totalSale)}€
+      <div className="flex justify-start">
+        <div className="grid grid-cols-2">
+          {Object.keys(totalSaleByPaiementType).map((paiementMethod, key) => <Fragment key={key}>
+            <span>{paiementMethodsNames[paiementMethod]} :</span>
+            <span className="ml-2">{Round(totalSaleByPaiementType[paiementMethod])}€</span>
+          </Fragment>)}
+          <span className="text-xl">Total :</span>
+          <span className="text-xl ml-2">{Round(totalSale)}€</span>
+        </div>
       </div>
       <h3 className="my-2 text-2xl">Liste des ventes :</h3>
       <div className="flex flex-col">
@@ -214,7 +225,7 @@ const SalesResume = ({ sales, articles, salesDate }: SalesResumeProps) => {
 function formatSaleArticles(saleArticlesId: number[], articles: IArticle[]): string[] {
   const saleArticlesMapped: IArticle[] = saleArticlesId.map((articleId) => articles.find((a) => a.id === articleId) as IArticle)
   const cardById = articlesById(saleArticlesMapped)
-  return cardById.map(({ quantity, article }) => `${quantity} ${article.name}`)
+  return cardById.sort((a, b) => b.quantity - a.quantity).map(({ quantity, article }) => `${quantity} ${article.name}`)
 }
 
 export default withAuthentication(Sales)
