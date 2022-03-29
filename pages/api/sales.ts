@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   if (!Number.isInteger(page) || (typeof date !== 'string' && date !== null))
     return res.status(400).json({ ok: false, error: 'Invalid data' })
 
-  const limit = 8
+  const limit = 15
   let where = {}
   if (date) {
     const created_at = new Date(date);

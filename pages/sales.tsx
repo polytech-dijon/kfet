@@ -36,6 +36,9 @@ const Sales: NextPage = () => {
   useEffect(() => {
     getSales()
   }, [salesPage, salesDate])
+  useEffect(() => {
+    setSalesPage(0)
+  }, [salesDate])
 
   return (
     <>
