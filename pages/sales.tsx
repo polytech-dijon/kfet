@@ -14,12 +14,14 @@ const Sales: NextPage = () => {
   const [articles, setArticles] = useState<IArticle[]>([])
   const [pageCount, setPageCount] = useState<number>(0)
   const [salesPage, setSalesPage] = useState(0)
+  const [salesDate, setSalesDate] = useState('')
 
   async function getSales() {
     try {
       const { data } = await api.post<SalesData>('/api/sales', {
         data: {
-          page: salesPage
+          page: salesPage,
+          date: salesDate || null,
         }
       })
       setSales(data.sales)
@@ -33,7 +35,7 @@ const Sales: NextPage = () => {
 
   useEffect(() => {
     getSales()
-  }, [salesPage])
+  }, [salesPage, salesDate])
 
   return (
     <>
@@ -42,8 +44,26 @@ const Sales: NextPage = () => {
         <meta name="description" content="Ventes de la MEGA KFET" />
       </Head>
       <div className="grow container flex flex-col">
-        <h1 className="text-4xl text-center my-8">Ventes :</h1>
-        {(articles.length > 0 && articles.length > 0 && pageCount) && <div className="flex flex-col items-center">
+        <div className="flex justify-between items-center">
+          <h1 className="text-4xl text-center my-8">Ventes :</h1>
+          <div>
+            <span className="mr-2">Date des ventes :</span>
+            <input
+              type="date"
+              id="start"
+              name="trip-start"
+              value={salesDate}
+              onChange={(e) => setSalesDate(e.target.value)}
+              className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+            />
+          </div>
+        </div>
+        {(articles.length > 0 && pageCount === 0) && (
+          <div className="flex justify-center">
+            Aucune vente trouvée.
+          </div>
+        )}
+        {(articles.length > 0 && articles.length > 0 && pageCount > 0) && <div className="flex flex-col items-center">
           <div className="relative overflow-x-auto shadow-md sm:rounded-lg w-full">
             <table className="w-full text-sm text-left text-gray-500">
               <thead className="text-xs text-gray-700 uppercase bg-gray-50">

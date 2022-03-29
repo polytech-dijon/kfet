@@ -27,11 +27,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   const { data } = req.body
   if (!data)
     return res.status(400).json({ ok: false, error: 'Invalid data' })
-  const { page }: { page: number } = data
-  if (!Number.isInteger(page))
+  const { page, date }: { page: number, date: number | null } = data
+  if (!Number.isInteger(page) || (typeof date !== 'string' && date !== null))
     return res.status(400).json({ ok: false, error: 'Invalid data' })
 
   const limit = 8
+  let where = {}
+  if (date) {
+    const created_at = new Date(date);
+    where = {
+      created_at: {
+        gte: created_at,
+        lt: new Date(created_at.getTime() + 86400000)
+      }
+    }
+  }
 
   const prisma = new PrismaClient()
   const [articles, sales, saleCount] = await Promise.all([
@@ -44,8 +54,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
           created_at: 'desc'
         },
       ],
+      where,
     }),
-    await prisma.sale.count(),
+    await prisma.sale.count({
+      where,
+    }),
   ])
   prisma.$disconnect()
 
