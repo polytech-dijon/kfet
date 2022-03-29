@@ -1,5 +1,6 @@
-import { PrismaClient, Prisma } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import verifyJwt from '../../utils/verifyJwt'
+import prisma from '../../prisma'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import type { ApiResponse } from '../../types/api'
 import type { IArticle, PaiementMethod } from '../../types/db'
@@ -12,7 +13,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   if (!card || !paiementMethod)
     return res.status(400).json({ ok: false, error: 'Invalid data' })
 
-  const prisma = new PrismaClient()
   await prisma.sale.create({
     data: {
       paiement_method: paiementMethod,

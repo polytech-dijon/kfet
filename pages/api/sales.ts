@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import prisma from '../../prisma'
 import { mapPrismaItems } from '../../utils'
 import verifyJwt from '../../utils/verifyJwt'
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -31,7 +31,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     }
   }
 
-  const prisma = new PrismaClient()
   const [articles, sales, saleCount] = await Promise.all([
     await prisma.article.findMany(),
     await prisma.sale.findMany({

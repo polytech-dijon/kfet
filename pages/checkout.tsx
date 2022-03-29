@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
 import Head from 'next/head'
 import toast from 'react-hot-toast'
-import { PrismaClient } from '@prisma/client'
 import { RiAddLine, RiSubtractLine } from 'react-icons/ri'
 import { withAuthentication } from '../components/withAuthentication'
+import prisma from '../prisma'
 import api from '../services/api'
 import { articlesById, mapPrismaItems, Round } from '../utils'
 import { categories, categoryNames, paiementMethods, paiementMethodsNames } from '../utils/db-enum'
@@ -136,7 +136,6 @@ const CardOverview = ({ card, setCard, submitCard }: CardOverviewProps) => {
 }
 
 export const getServerSideProps: GetServerSideProps<CheckoutProps> = async () => {
-  const prisma = new PrismaClient()
   const [articles, products] = await Promise.all([
     prisma.article.findMany(),
     prisma.product.findMany(),
