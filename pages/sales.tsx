@@ -3,7 +3,7 @@ import Head from 'next/head'
 import toast from 'react-hot-toast'
 import { withAuthentication } from '../components/withAuthentication'
 import api from '../services/api'
-import { articlesById } from '../utils'
+import { articlesById, Round } from '../utils'
 import { paiementMethodsNames } from '../utils/db-enum'
 import type { NextPage } from 'next'
 import type { IArticle, ISale } from '../types/db'
@@ -46,7 +46,7 @@ const Sales: NextPage = () => {
         <title>MEGA KFET</title>
         <meta name="description" content="Ventes de la MEGA KFET" />
       </Head>
-      <div className="grow container flex flex-col">
+      <div className="grow container flex flex-col py-4">
         <div className="flex justify-between items-center">
           <h1 className="text-4xl text-center my-8">Ventes :</h1>
           <div>
@@ -92,7 +92,7 @@ const Sales: NextPage = () => {
                 {sales.map((sale, key) => (
                   <tr key={key} className="bg-white">
                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                      {formatSaleArticles(sale, articles)}
+                      {formatSaleArticles(sale.articles, articles).join(', ')}
                     </th>
                     <td className="px-6 py-4">
                       {paiementMethodsNames[sale.paiement_method]}
@@ -115,6 +115,7 @@ const Sales: NextPage = () => {
             <SalesTablePagination salesPage={salesPage} setSalesPage={setSalesPage} pageCount={pageCount} />
           </div>
         </div>}
+        {salesDate && sales.length > 0 && <SalesResume articles={articles} sales={sales} salesDate={salesDate} />}
       </div>
     </>
   )
@@ -184,10 +185,36 @@ const SalesTablePagination = ({ salesPage, setSalesPage, pageCount }: SalesTable
   )
 }
 
-function formatSaleArticles(sale: ISale, articles: IArticle[]) {
-  const saleArticles: IArticle[] = sale.articles.map((articleId) => articles.find((a) => a.id === articleId) as IArticle)
-  const cardById = articlesById(saleArticles)
-  return cardById.map(({ quantity, article }) => `${quantity} ${article.name}`).join(', ')
+type SalesResumeProps = {
+  sales: ISale[];
+  articles: IArticle[];
+  salesDate: string;
+}
+const SalesResume = ({ sales, articles, salesDate }: SalesResumeProps) => {
+  const totalSale = sales.reduce((acc, sale) => acc + sale.sell_price, 0)
+  const saleArticlesId = sales.map((sale) => sale.articles).flat()
+  
+  return <div className="my-4">
+    <h2 className="text-3xl">Résumé de la journée :</h2>
+    <div className="flex flex-col">
+      <h3 className="my-2 text-2xl">Chiffre d&apos;affaire :</h3>
+      <div className="text-xl">
+        {Round(totalSale)}€
+      </div>
+      <h3 className="my-2 text-2xl">Liste des ventes :</h3>
+      <div className="flex flex-col">
+        {formatSaleArticles(saleArticlesId, articles).map((desc, key) => (
+          <span key={key}>{desc}</span>
+        ))}
+      </div>
+    </div>
+  </div>
+}
+
+function formatSaleArticles(saleArticlesId: number[], articles: IArticle[]): string[] {
+  const saleArticlesMapped: IArticle[] = saleArticlesId.map((articleId) => articles.find((a) => a.id === articleId) as IArticle)
+  const cardById = articlesById(saleArticlesMapped)
+  return cardById.map(({ quantity, article }) => `${quantity} ${article.name}`)
 }
 
 export default withAuthentication(Sales)
