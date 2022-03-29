@@ -1,6 +1,6 @@
-import jwt from 'jsonwebtoken'
 import { PrismaClient } from '@prisma/client'
 import { mapPrismaItems } from '../../utils'
+import verifyJwt from '../../utils/verifyJwt'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import type { ApiResponse } from '../../types/api'
 import type { IArticle, ISale } from '../../types/db'
@@ -12,22 +12,10 @@ export type SalesData = {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse<SalesData>>) {
-  const { authorization } = req.headers
-  if (!authorization)
-    return res.status(400).json({ ok: false, error: 'No token provided' })
+  if (!verifyJwt({ req, res, verifyBodyData: true }))
+    return
 
-  const token = (authorization.match('JWT (.*)') || '')[1].trim()
-  try {
-    jwt.verify(token, process.env.JWT_SECRET || '')
-  }
-  catch {
-    return res.status(400).json({ ok: false, error: 'Invalid token' })
-  }
-
-  const { data } = req.body
-  if (!data)
-    return res.status(400).json({ ok: false, error: 'Invalid data' })
-  const { page, date }: { page: number, date: number | null } = data
+  const { page, date }: { page: number, date: number | null } = req.body.data
   if (!Number.isInteger(page) || (typeof date !== 'string' && date !== null))
     return res.status(400).json({ ok: false, error: 'Invalid data' })
 
@@ -62,9 +50,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   ])
   prisma.$disconnect()
 
-  res.status(200).json({ ok: true, data: {
-    articles: mapPrismaItems(articles),
-    sales: mapPrismaItems(sales),
-    pageCount: Math.ceil(saleCount / limit),
-  } })
+  res.status(200).json({
+    ok: true,
+    data: {
+      articles: mapPrismaItems(articles),
+      sales: mapPrismaItems(sales),
+      pageCount: Math.ceil(saleCount / limit),
+    }
+  })
 }

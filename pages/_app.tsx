@@ -3,8 +3,11 @@ import { useEffect, useState } from 'react'
 import Head from 'next/head'
 import { Provider, useSelector } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
-import { store, persistor } from '../redux/store'
 import { Toaster } from 'react-hot-toast'
+import { useRouter } from 'next/router'
+import { useDispatch } from 'react-redux'
+import { store, persistor } from '../redux/store'
+import { logout } from '../redux/actions'
 import Navbar from '../components/Navbar'
 import api from '../services/api'
 import type { AppProps } from 'next/app'
@@ -26,12 +29,29 @@ function AppContainer(props: AppProps) {
 }
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const router = useRouter()
+  const dispatch = useDispatch()
   const accessToken: string | null = useSelector((state: RootState) => state.accessToken)
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
-    api.setToken(accessToken)
-    setLoaded(true)
+    (async () => {
+      if (accessToken) {
+        api.setToken(accessToken)
+        try {
+          await api.get('/api/verifyAuth')
+          setLoaded(true)
+        }
+        catch {
+          api.setToken(null)
+          setLoaded(true)
+          dispatch(logout())
+          router.push('/')
+        }
+      }
+      else
+        setLoaded(true)
+    })()
   }, [])
 
   return <div>
