@@ -3,12 +3,16 @@ import { mapPrismaItems } from '../../utils'
 import verifyJwt from '../../utils/verifyJwt'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import type { ApiResponse } from '../../types/api'
-import type { IArticle, ISale } from '../../types/db'
+import type { IArticle, ISale, PaiementMethod } from '../../types/db'
 
 export type SalesData = {
   articles: IArticle[];
   sales: ISale[];
   pageCount: number;
+  resume: {
+    priceResumeByPaiementMethod: { paiementMethod: PaiementMethod, price: number }[];
+    resumeArticles: number[];
+  };
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse<SalesData>>) {
@@ -49,12 +53,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   ])
   prisma.$disconnect()
 
+  const priceResume = await prisma.sale.groupBy({
+    by: ['paiement_method'],
+    where,
+    _sum: {
+      sell_price: true,
+    },
+  })
+  const priceResumeByPaiementMethod = priceResume.map((item) => ({
+    paiementMethod: item.paiement_method as PaiementMethod,
+    price: item._sum.sell_price?.toNumber() ?? 0,
+  }))
+  let resumeArticles: number[] = []
+  if (date) {
+    const articlesResume = await prisma.sale.findMany({
+      where,
+      select: {
+        articles: true,
+      }
+    })
+    resumeArticles = articlesResume.map((item) => item.articles).flat()
+  }
+
   res.status(200).json({
     ok: true,
     data: {
       articles: mapPrismaItems(articles),
       sales: mapPrismaItems(sales),
       pageCount: Math.ceil(saleCount / limit),
+      resume: {
+        priceResumeByPaiementMethod,
+        resumeArticles,
+      },
     }
   })
 }

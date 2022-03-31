@@ -12,6 +12,7 @@ import type { SalesData } from './api/sales'
 const Sales: NextPage = () => {
   const [sales, setSales] = useState<ISale[]>([])
   const [articles, setArticles] = useState<IArticle[]>([])
+  const [resume, setResume] = useState<SalesData['resume'] | null>(null)
   const [pageCount, setPageCount] = useState<number>(0)
   const [salesPage, setSalesPage] = useState(0)
   const [salesDate, setSalesDate] = useState('')
@@ -27,6 +28,7 @@ const Sales: NextPage = () => {
       setSales(data.sales)
       setArticles(data.articles)
       setPageCount(data.pageCount)
+      setResume(data.resume)
     }
     catch {
       toast.error('Une erreur est survenue')
@@ -115,7 +117,7 @@ const Sales: NextPage = () => {
             <SalesTablePagination salesPage={salesPage} setSalesPage={setSalesPage} pageCount={pageCount} />
           </div>
         </div>}
-        {salesDate && sales.length > 0 && <SalesResume articles={articles} sales={sales} salesDate={salesDate} />}
+        {resume && sales.length > 0 && <SalesResume resume={resume} articles={articles} />}
       </div>
     </>
   )
@@ -161,7 +163,7 @@ const SalesTablePagination = ({ salesPage, setSalesPage, pageCount }: SalesTable
         }
         else if (page === -1) {
           return <li key={key}>
-            <button onClick={() => setSalesPage(page)} className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">...</button>
+            <button className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">...</button>
           </li>
         }
         else {
@@ -186,17 +188,11 @@ const SalesTablePagination = ({ salesPage, setSalesPage, pageCount }: SalesTable
 }
 
 type SalesResumeProps = {
-  sales: ISale[];
+  resume: SalesData['resume'];
   articles: IArticle[];
-  salesDate: string;
 }
-const SalesResume = ({ sales, articles, salesDate }: SalesResumeProps) => {
-  const totalSale = sales.reduce((acc, sale) => acc + sale.sell_price, 0)
-  const totalSaleByPaiementType = sales.reduce((acc: any, sale) => {
-    acc[sale.paiement_method] = (acc[sale.paiement_method] || 0) + sale.sell_price
-    return acc
-  }, {})
-  const saleArticlesId = sales.map((sale) => sale.articles).flat()
+const SalesResume = ({ resume, articles }: SalesResumeProps) => {
+  const totalSale = resume.priceResumeByPaiementMethod.reduce((acc, sale) => acc + sale.price, 0)
 
   return <div className="my-4">
     <h2 className="text-3xl">Résumé de la journée :</h2>
@@ -204,20 +200,22 @@ const SalesResume = ({ sales, articles, salesDate }: SalesResumeProps) => {
       <h3 className="my-2 text-2xl">Chiffre d&apos;affaire :</h3>
       <div className="flex justify-start">
         <div className="grid grid-cols-2">
-          {Object.keys(totalSaleByPaiementType).map((paiementMethod, key) => <Fragment key={key}>
-            <span>{paiementMethodsNames[paiementMethod]} :</span>
-            <span className="ml-2">{Round(totalSaleByPaiementType[paiementMethod])}€</span>
+          {resume.priceResumeByPaiementMethod.map((sale, key) => <Fragment key={key}>
+            <span>{paiementMethodsNames[sale.paiementMethod]} :</span>
+            <span className="ml-2">{Round(sale.price)}€</span>
           </Fragment>)}
           <span className="text-xl">Total :</span>
           <span className="text-xl ml-2">{Round(totalSale)}€</span>
         </div>
       </div>
-      <h3 className="my-2 text-2xl">Liste des ventes :</h3>
-      <div className="flex flex-col">
-        {formatSaleArticles(saleArticlesId, articles).map((desc, key) => (
-          <span key={key}>{desc}</span>
-        ))}
-      </div>
+      {resume.resumeArticles.length > 0 && <>
+        <h3 className="my-2 text-2xl">Liste des ventes :</h3>
+        <div className="flex flex-col">
+          {formatSaleArticles(resume.resumeArticles, articles).map((desc, key) => (
+            <span key={key}>{desc}</span>
+          ))}
+        </div>
+      </>}
     </div>
   </div>
 }
