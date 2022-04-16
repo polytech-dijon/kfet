@@ -12,9 +12,10 @@ export type ModalProps = {
   cancelButton?: boolean;
   submitButtonText?: string;
   cancelButtonText?: string;
+  submitButtonColor?: "primary" | "success" | "error";
 }
 
-const Modal = ({ isOpen, title, children, onSubmit, onCancel, cancelButton = true, submitButtonText, cancelButtonText }: ModalProps) => {
+const Modal = ({ isOpen, title, children, onSubmit, onCancel, cancelButton = true, submitButtonText, cancelButtonText, submitButtonColor }: ModalProps) => {
 
   function submitModal() {
     if (onSubmit)
@@ -87,7 +88,7 @@ const Modal = ({ isOpen, title, children, onSubmit, onCancel, cancelButton = tru
               )}
               <button
                 type="button"
-                className="button"
+                className={getButtonClass(submitButtonColor)}
                 onClick={submitModal}
               >
                 {submitButtonText || 'Valider'}
@@ -98,6 +99,15 @@ const Modal = ({ isOpen, title, children, onSubmit, onCancel, cancelButton = tru
       </div>
     </Dialog>
   </Transition>
+}
+
+function getButtonClass(color?: "primary" | "success" | "error") {
+    if (color === "success")
+      return "button green"
+    else if (color === "error")
+      return "button red"
+    else
+      return "button"
 }
 
 export default Modal

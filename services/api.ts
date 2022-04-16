@@ -143,7 +143,7 @@ class Api {
           mode: "cors",
           method: "POST",
           credentials: "include",
-          headers: {},
+          headers: this.headersWithToken(),
           body: formData,
         })
 
@@ -162,7 +162,7 @@ class Api {
     })
   }
 
-  remove<T = any>(path: string): Promise<ApiResponseSuccess<T>> {
+  remove<T = any, U = ApiRequest<any>>(path: string, body?: string | U): Promise<ApiResponseSuccess<T>> {
     return new Promise(async (resolve, reject) => {
       try {
         const response = await fetch(`${apiURL}${path}`, {
@@ -170,6 +170,9 @@ class Api {
           credentials: "include",
           method: "DELETE",
           headers: this.headersWithToken({ "Content-Type": "application/json" }),
+          ...(body !== undefined ? {
+            body: typeof body === "string" ? body : JSON.stringify(body),
+          } : {})
         })
 
         const res: ApiResponse = await response.json()

@@ -3,23 +3,26 @@ import Head from 'next/head'
 import toast from 'react-hot-toast'
 import { withAuthentication } from '../components/withAuthentication'
 import api from '../services/api'
+import Modal from '../components/Modal'
 import { articlesById, Round } from '../utils'
 import { paiementMethodsNames } from '../utils/db-enum'
 import type { NextPage } from 'next'
 import type { IArticle, ISale } from '../types/db'
-import type { SalesData } from './api/sales'
+import type { ApiRequest } from '../types/api'
+import type { GetSalesProps, GetSalesResult, DeleteSalesResult } from './api/sales'
 
 const Sales: NextPage = () => {
   const [sales, setSales] = useState<ISale[]>([])
   const [articles, setArticles] = useState<IArticle[]>([])
-  const [resume, setResume] = useState<SalesData['resume'] | null>(null)
+  const [resume, setResume] = useState<GetSalesResult['resume'] | null>(null)
   const [pageCount, setPageCount] = useState<number>(0)
   const [salesPage, setSalesPage] = useState(0)
   const [salesDate, setSalesDate] = useState('')
+  const [deletingSale, setDeletingSale] = useState<ISale | null>(null)
 
   async function getSales() {
     try {
-      const { data } = await api.post<SalesData>('/api/sales', {
+      const { data } = await api.post<GetSalesResult, ApiRequest<GetSalesProps>>('/api/sales', {
         data: {
           page: salesPage,
           date: salesDate || null,
@@ -29,6 +32,22 @@ const Sales: NextPage = () => {
       setArticles(data.articles)
       setPageCount(data.pageCount)
       setResume(data.resume)
+    }
+    catch {
+      toast.error('Une erreur est survenue')
+    }
+  }
+
+  async function deleteSale(sale: ISale, updateStocks: boolean) {
+    try {
+      await api.remove<DeleteSalesResult>(`/api/sales`, {
+        data: {
+          id: sale.id,
+          updateStocks,
+        },
+      })
+      await getSales()
+      toast.success('La vente a été supprimée')
     }
     catch {
       toast.error('Une erreur est survenue')
@@ -73,21 +92,21 @@ const Sales: NextPage = () => {
             <table className="w-full text-sm text-left text-gray-500">
               <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                 <tr>
-                  <th scope="col" className="px-6 py-3 w-2/5">
+                  <th scope="col" className="px-6 py-3 w-1/3">
                     Articles
                   </th>
-                  <th scope="col" className="px-6 py-3 w-1/5">
+                  <th scope="col" className="px-6 py-3 w-1/6">
                     Moyen de paiement
                   </th>
-                  <th scope="col" className="px-6 py-3 w-1/5">
+                  <th scope="col" className="px-6 py-3 w-1/6">
                     Prix de vente
                   </th>
-                  <th scope="col" className="px-6 py-3 w-1/5">
+                  <th scope="col" className="px-6 py-3 w-1/6">
                     Date de vente
                   </th>
-                  {/* <th scope="col" className="px-6 py-3">
-                    <span className="sr-only">Actions</span>
-                  </th> */}
+                  <th scope="col" className="px-6 py-3 w-1/6">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -105,9 +124,9 @@ const Sales: NextPage = () => {
                     <td className="px-6 py-4">
                       {new Date(sale.created_at).toLocaleString()}
                     </td>
-                    {/* <td className="px-6 py-4 text-right">
-                      <a href="#" className="font-medium text-red-600 hover:underline">Supprimer</a>
-                    </td> */}
+                    <td className="px-6 py-4">
+                      <button className="button red" onClick={() => setDeletingSale(sale)}>Supprimer</button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -119,6 +138,7 @@ const Sales: NextPage = () => {
         </div>}
         {resume && sales.length > 0 && <SalesResume resume={resume} articles={articles} />}
       </div>
+      <DeleteSaleModal deletingSale={deletingSale} setDeletingSale={setDeletingSale} deleteSale={deleteSale} />
     </>
   )
 }
@@ -188,7 +208,7 @@ const SalesTablePagination = ({ salesPage, setSalesPage, pageCount }: SalesTable
 }
 
 type SalesResumeProps = {
-  resume: SalesData['resume'];
+  resume: GetSalesResult['resume'];
   articles: IArticle[];
 }
 const SalesResume = ({ resume, articles }: SalesResumeProps) => {
@@ -218,6 +238,40 @@ const SalesResume = ({ resume, articles }: SalesResumeProps) => {
       </>}
     </div>
   </div>
+}
+
+type DeleteSaleModalProps = {
+  deletingSale: ISale | null;
+  setDeletingSale: (sale: ISale | null) => void;
+  deleteSale: (sale: ISale, updateStocks: boolean) => Promise<void>;
+}
+function DeleteSaleModal({ deletingSale, setDeletingSale, deleteSale }: DeleteSaleModalProps) {
+  const [updateStocks, setUpdateStocks] = useState<boolean>(true)
+
+  return <Modal
+    isOpen={deletingSale !== null}
+    onSubmit={async () => {
+      if (deletingSale)
+        await deleteSale(deletingSale, updateStocks)
+      setDeletingSale(null)
+    }}
+    onCancel={() => setDeletingSale(null)}
+    title="Supprimer la vente"
+    submitButtonText="Supprimer"
+    submitButtonColor="error"
+  >
+    <div className="my-3">
+      <p>Êtes-vous sûr de vouloir supprimer cette vente ?</p>
+      <div className="flex items-start mt-2">
+        <div className="flex items-center h-5">
+          <input id="terms" aria-describedby="terms" type="checkbox" checked={updateStocks} onChange={(e) => setUpdateStocks(e.target.checked)} className="w-4 h-4 bg-gray-50 rounded border border-gray-300 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800" required />
+        </div>
+        <div className="ml-3 text-sm">
+          <label htmlFor="terms" className="font-medium text-gray-900 dark:text-gray-300">Mettre aussi à jour les stocks</label>
+        </div>
+      </div>
+    </div>
+  </Modal>
 }
 
 function formatSaleArticles(saleArticlesId: number[], articles: IArticle[]): string[] {
