@@ -215,7 +215,7 @@ const SalesResume = ({ resume, articles }: SalesResumeProps) => {
   const totalSale = resume.priceResumeByPaiementMethod.reduce((acc, sale) => acc + sale.price, 0)
 
   return <div className="my-4">
-    <h2 className="text-3xl">Résumé de la journée :</h2>
+    <h2 className="text-3xl">{resume.resumeArticles.length > 0 ? "Résumé de la journée :" : "Résumé total des ventes"}</h2>
     <div className="flex flex-col">
       <h3 className="my-2 text-2xl">Chiffre d&apos;affaire :</h3>
       <div className="flex justify-start">
