@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import prisma from '../../prisma'
 import { mapPrismaItems } from '../../utils'
 import verifyJwt from '../../utils/verifyJwt'
@@ -27,23 +28,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     ])
     prisma.$disconnect()
 
+    const data: StocksData = {
+      articles: mapPrismaItems(articles),
+      products: mapPrismaItems(products),
+    }
     res.status(200).json({
       ok: true,
-      data: {
-        articles: mapPrismaItems(articles),
-        products: mapPrismaItems(products),
-      },
+      data,
     })
   }
   else if (req.method === 'POST') {
     if (!verifyJwt({ req, res, verifyBodyData: true }))
       return
 
-    const { product } = req.body.data
+    const { product }: { product: IProduct } = req.body.data
     if (!product)
       return res.status(400).json({ ok: false, error: 'Invalid data' })
 
-    console.log("update product", product)
+    await prisma.product.update({
+      where: {
+        id: product.id,
+      },
+      data: {
+        name: product.name,
+        quantity: product.quantity,
+        buying_price: new Prisma.Decimal(product.buying_price),
+      },
+    })
+    prisma.$disconnect()
 
     res.status(200).json({
       ok: true,

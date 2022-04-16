@@ -84,7 +84,7 @@ const Stocks: NextPage = () => {
                         {product.buying_price}€
                       </td>
                       <td className="px-6 py-4">
-                        <button className="button" onClick={() => setEditingProduct(product)}>Éditer</button>
+                        <button className="button w-24" onClick={() => setEditingProduct(product)}>Éditer</button>
                       </td>
                     </tr>
                   ))}
