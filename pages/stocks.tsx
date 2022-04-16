@@ -6,7 +6,8 @@ import api from '../services/api'
 import Modal from '../components/Modal'
 import type { NextPage } from 'next'
 import type { IArticle, IProduct } from '../types/db'
-import type { StocksData } from './api/stocks'
+import type { ApiRequest } from '../types/api'
+import type { GetStocksResult, PutStocksBody, PutStocksResult } from './api/stocks'
 
 const Stocks: NextPage = () => {
   const [articles, setArticles] = useState<IArticle[]>([])
@@ -15,7 +16,7 @@ const Stocks: NextPage = () => {
 
   async function getStocks() {
     try {
-      const { data } = await api.get<StocksData>('/api/stocks')
+      const { data } = await api.get<GetStocksResult>('/api/stocks')
       setProducts(data.products)
       setArticles(data.articles)
     }
@@ -26,7 +27,7 @@ const Stocks: NextPage = () => {
 
   async function updateProduct(product: IProduct) {
     try {
-      const { data } = await api.post<StocksData>('/api/stocks', {
+      await api.put<PutStocksResult, ApiRequest<PutStocksBody>>('/api/stocks', {
         data: {
           product,
         },

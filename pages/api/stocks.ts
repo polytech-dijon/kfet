@@ -6,13 +6,18 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import type { ApiResponse } from '../../types/api'
 import type { IArticle, IProduct } from '../../types/db'
 
-export type StocksData = {
+export type GetStocksResult = {
   articles: IArticle[];
   products: IProduct[];
 }
+export type PutStocksBody = {
+  product: IProduct;
+}
+export type PutStocksResult = {}
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse<StocksData | {}>>) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse<GetStocksResult | PutStocksResult>>) {
   if (req.method === 'GET') {
+
     if (!verifyJwt({ req, res }))
       return
 
@@ -28,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     ])
     prisma.$disconnect()
 
-    const data: StocksData = {
+    const data: GetStocksResult = {
       articles: mapPrismaItems(articles),
       products: mapPrismaItems(products),
     }
@@ -36,12 +41,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       ok: true,
       data,
     })
+
   }
-  else if (req.method === 'POST') {
+  else if (req.method === 'PUT') {
+
     if (!verifyJwt({ req, res, verifyBodyData: true }))
       return
 
-    const { product }: { product: IProduct } = req.body.data
+    const { product }: PutStocksBody = req.body.data
     if (!product)
       return res.status(400).json({ ok: false, error: 'Invalid data' })
 
@@ -61,5 +68,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       ok: true,
       data: {},
     })
+
   }
 }

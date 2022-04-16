@@ -5,7 +5,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import type { ApiResponse } from '../../types/api'
 import type { IArticle, ISale, PaiementMethod } from '../../types/db'
 
-export type GetSalesProps = {
+export type GetSalesBody = {
   page: number;
   date: string | null;
 }
@@ -18,7 +18,7 @@ export type GetSalesResult = {
     resumeArticles: number[];
   };
 }
-export type DeleteSalesProps = {
+export type DeleteSalesBody = {
   id: number;
   updateStocks: boolean;
 }
@@ -30,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
   if (req.method === 'POST') {
 
-    const { page, date }: GetSalesProps = req.body.data
+    const { page, date }: GetSalesBody = req.body.data
     if (!Number.isInteger(page) || (typeof date !== 'string' && date !== null))
       return res.status(400).json({ ok: false, error: 'Invalid data' })
 
@@ -102,7 +102,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   }
   else if (req.method === 'DELETE') {
 
-    const { id, updateStocks }: DeleteSalesProps = req.body.data
+    const { id, updateStocks }: DeleteSalesBody = req.body.data
     if (typeof id !== 'number' || typeof updateStocks !== 'boolean')
       return res.status(400).json({ ok: false, error: 'Invalid data' })
 

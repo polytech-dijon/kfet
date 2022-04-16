@@ -9,7 +9,7 @@ import { paiementMethodsNames } from '../utils/db-enum'
 import type { NextPage } from 'next'
 import type { IArticle, ISale } from '../types/db'
 import type { ApiRequest } from '../types/api'
-import type { GetSalesProps, GetSalesResult, DeleteSalesResult } from './api/sales'
+import type { GetSalesBody, GetSalesResult, DeleteSalesResult, DeleteSalesBody } from './api/sales'
 
 const Sales: NextPage = () => {
   const [sales, setSales] = useState<ISale[]>([])
@@ -22,7 +22,7 @@ const Sales: NextPage = () => {
 
   async function getSales() {
     try {
-      const { data } = await api.post<GetSalesResult, ApiRequest<GetSalesProps>>('/api/sales', {
+      const { data } = await api.post<GetSalesResult, ApiRequest<GetSalesBody>>('/api/sales', {
         data: {
           page: salesPage,
           date: salesDate || null,
@@ -40,7 +40,7 @@ const Sales: NextPage = () => {
 
   async function deleteSale(sale: ISale, updateStocks: boolean) {
     try {
-      await api.remove<DeleteSalesResult>(`/api/sales`, {
+      await api.remove<DeleteSalesResult, ApiRequest<DeleteSalesBody>>(`/api/sales`, {
         data: {
           id: sale.id,
           updateStocks,
