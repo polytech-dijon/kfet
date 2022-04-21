@@ -14,7 +14,6 @@ import type { GetSalesBody, GetSalesResult, DeleteSalesResult, DeleteSalesBody }
 const Sales: NextPage = () => {
   const [sales, setSales] = useState<ISale[]>([])
   const [articles, setArticles] = useState<IArticle[]>([])
-  const [resume, setResume] = useState<GetSalesResult['resume'] | null>(null)
   const [pageCount, setPageCount] = useState<number>(0)
   const [salesPage, setSalesPage] = useState(0)
   const [salesDate, setSalesDate] = useState('')
@@ -31,7 +30,6 @@ const Sales: NextPage = () => {
       setSales(data.sales)
       setArticles(data.articles)
       setPageCount(data.pageCount)
-      setResume(data.resume)
     }
     catch {
       toast.error('Une erreur est survenue')
@@ -70,7 +68,7 @@ const Sales: NextPage = () => {
       <div className="grow container flex flex-col py-4">
         <div className="flex justify-between items-center">
           <h1 className="text-4xl text-center my-8">Ventes :</h1>
-          <div>
+          <div className="text-xl">
             <span className="mr-2">Date des ventes :</span>
             <input
               type="date"
@@ -78,7 +76,7 @@ const Sales: NextPage = () => {
               name="trip-start"
               value={salesDate}
               onChange={(e) => setSalesDate(e.target.value)}
-              className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+              className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
             />
           </div>
         </div>
@@ -136,7 +134,6 @@ const Sales: NextPage = () => {
             <SalesTablePagination salesPage={salesPage} setSalesPage={setSalesPage} pageCount={pageCount} />
           </div>
         </div>}
-        {resume && sales.length > 0 && <SalesResume resume={resume} articles={articles} />}
       </div>
       <DeleteSaleModal deletingSale={deletingSale} setDeletingSale={setDeletingSale} deleteSale={deleteSale} />
     </>
@@ -207,39 +204,6 @@ const SalesTablePagination = ({ salesPage, setSalesPage, pageCount }: SalesTable
   )
 }
 
-type SalesResumeProps = {
-  resume: GetSalesResult['resume'];
-  articles: IArticle[];
-}
-const SalesResume = ({ resume, articles }: SalesResumeProps) => {
-  const totalSale = resume.priceResumeByPaiementMethod.reduce((acc, sale) => acc + sale.price, 0)
-
-  return <div className="my-4">
-    <h2 className="text-3xl">{resume.resumeArticles.length > 0 ? "Résumé de la journée :" : "Résumé total des ventes"}</h2>
-    <div className="flex flex-col">
-      <h3 className="my-2 text-2xl">Chiffre d&apos;affaire :</h3>
-      <div className="flex justify-start">
-        <div className="grid grid-cols-2">
-          {resume.priceResumeByPaiementMethod.map((sale, key) => <Fragment key={key}>
-            <span>{paiementMethodsNames[sale.paiementMethod]} :</span>
-            <span className="ml-2">{Round(sale.price)}€</span>
-          </Fragment>)}
-          <span className="text-xl">Total :</span>
-          <span className="text-xl ml-2">{Round(totalSale)}€</span>
-        </div>
-      </div>
-      {resume.resumeArticles.length > 0 && <>
-        <h3 className="my-2 text-2xl">Liste des ventes :</h3>
-        <div className="flex flex-col">
-          {formatSaleArticles(resume.resumeArticles, articles).map((desc, key) => (
-            <span key={key}>{desc}</span>
-          ))}
-        </div>
-      </>}
-    </div>
-  </div>
-}
-
 type DeleteSaleModalProps = {
   deletingSale: ISale | null;
   setDeletingSale: (sale: ISale | null) => void;
@@ -264,10 +228,10 @@ function DeleteSaleModal({ deletingSale, setDeletingSale, deleteSale }: DeleteSa
       <p>Êtes-vous sûr de vouloir supprimer cette vente ?</p>
       <div className="flex items-start mt-2">
         <div className="flex items-center h-5">
-          <input id="terms" aria-describedby="terms" type="checkbox" checked={updateStocks} onChange={(e) => setUpdateStocks(e.target.checked)} className="w-4 h-4 bg-gray-50 rounded border border-gray-300 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800" required />
+          <input id="terms" aria-describedby="terms" type="checkbox" checked={updateStocks} onChange={(e) => setUpdateStocks(e.target.checked)} className="w-4 h-4 bg-gray-50 rounded border border-gray-300 focus:ring-3 focus:ring-blue-300" required />
         </div>
         <div className="ml-3 text-sm">
-          <label htmlFor="terms" className="font-medium text-gray-900 dark:text-gray-300">Mettre aussi à jour les stocks</label>
+          <label htmlFor="terms" className="font-medium text-gray-900">Mettre aussi à jour les stocks</label>
         </div>
       </div>
     </div>

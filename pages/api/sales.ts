@@ -13,10 +13,6 @@ export type GetSalesResult = {
   articles: IArticle[];
   sales: ISale[];
   pageCount: number;
-  resume: {
-    priceResumeByPaiementMethod: { paiementMethod: PaiementMethod, price: number }[];
-    resumeArticles: number[];
-  };
 }
 export type DeleteSalesBody = {
   id: number;
@@ -62,29 +58,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         where,
       }),
     ])
-    prisma.$disconnect()
 
-    const priceResume = await prisma.sale.groupBy({
-      by: ['paiement_method'],
-      where,
-      _sum: {
-        sell_price: true,
-      },
-    })
-    const priceResumeByPaiementMethod = priceResume.map((item) => ({
-      paiementMethod: item.paiement_method as PaiementMethod,
-      price: item._sum.sell_price?.toNumber() ?? 0,
-    }))
-    let resumeArticles: number[] = []
-    if (date) {
-      const articlesResume = await prisma.sale.findMany({
-        where,
-        select: {
-          articles: true,
-        },
-      })
-      resumeArticles = articlesResume.map((item) => item.articles).flat()
-    }
+    prisma.$disconnect()
 
     res.status(200).json({
       ok: true,
@@ -92,10 +67,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         articles: mapPrismaItems(articles),
         sales: mapPrismaItems(sales),
         pageCount: Math.ceil(saleCount / limit),
-        resume: {
-          priceResumeByPaiementMethod,
-          resumeArticles,
-        },
       },
     })
 

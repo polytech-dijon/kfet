@@ -27,6 +27,11 @@ const Home: NextPage = () => {
               Ventes
             </a>
           </Link>
+          <Link href="/summary">
+            <a className="p-8 card text-xl uppercase w-full text-center font-semibold">
+              Résumé
+            </a>
+          </Link>
         </div>
       </div>
     </>

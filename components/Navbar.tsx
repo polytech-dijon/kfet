@@ -28,6 +28,10 @@ export const links: NavbarLink[] = [
     text: "Ventes",
     href: "/sales",
   },
+  {
+    text: "Résumé",
+    href: "/summary",
+  },
 ]
 
 const NavBar = () => {
