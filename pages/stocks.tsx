@@ -6,22 +6,20 @@ import { withAuthentication } from '../components/withAuthentication'
 import api from '../services/api'
 import Modal from '../components/Modal'
 import type { NextPage } from 'next'
-import type { IArticle, IProduct } from '../types/db'
+import type { IProduct } from '../types/db'
 import type { ApiRequest } from '../types/api'
 import type { DeleteStocksBody, DeleteStocksResult, GetStocksResult, PostStocksBody, PostStocksResult, PutStocksBody, PutStocksResult } from './api/stocks'
 
 const Stocks: NextPage = () => {
-  const [articles, setArticles] = useState<IArticle[]>([])
   const [products, setProducts] = useState<IProduct[]>([])
   const [editingProduct, setEditingProduct] = useState<IProduct | null>(null)
   const [deletingProduct, setDeletingProduct] = useState<IProduct | null>(null)
-  const [createProductOpen, setCreateModelOpen] = useState(false)
+  const [createProductOpen, setCreateModalOpen] = useState(false)
 
   async function getStocks() {
     try {
       const { data } = await api.get<GetStocksResult>('/api/stocks')
       setProducts(data.products)
-      setArticles(data.articles)
     }
     catch {
       toast.error('Une erreur est survenue')
@@ -36,7 +34,7 @@ const Stocks: NextPage = () => {
         },
       })
       await getStocks()
-      toast.success('Stock mis à jour !')
+      toast.success('Produit mis à jour !')
     }
     catch (e) {
       console.error(e)
@@ -52,7 +50,7 @@ const Stocks: NextPage = () => {
         },
       })
       await getStocks()
-      toast.success('Article supprimé !')
+      toast.success('Produit supprimé !')
     }
     catch (e) {
       console.error(e)
@@ -89,12 +87,12 @@ const Stocks: NextPage = () => {
       <div className="grow container flex flex-col py-4">
         <div className="flex justify-between items-center">
           <h1 className="text-4xl text-center my-8">Gestion des stocks :</h1>
-          <button className="button flex items-center" onClick={() => setCreateModelOpen(true)}>
+          <button className="button flex items-center" onClick={() => setCreateModalOpen(true)}>
             <RiAddLine className="-ml-1.5 mr-1" size={24} />
             Nouveau produit
           </button>
         </div>
-        {products.length > 0 && articles.length > 0 && (
+        {products.length > 0 && (
           <div className="flex flex-col items-center">
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg w-full">
               <table className="w-full text-sm text-left text-gray-500">
@@ -144,7 +142,7 @@ const Stocks: NextPage = () => {
       </div>
       <EditProductModal editingProduct={editingProduct} setEditingProduct={setEditingProduct} updateProduct={updateProduct} />
       <DeleteProductModal deletingProduct={deletingProduct} setDeletingProduct={setDeletingProduct} deleteProduct={deleteProduct} />
-      <CreateProductModal createProductOpen={createProductOpen} setCreateModelOpen={setCreateModelOpen} createProduct={createProduct} />
+      <CreateProductModal createProductOpen={createProductOpen} setCreateModalOpen={setCreateModalOpen} createProduct={createProduct} />
     </>
   )
 }
@@ -213,22 +211,22 @@ function DeleteProductModal({ deletingProduct, setDeletingProduct, deleteProduct
       setDeletingProduct(null)
     }}
     onCancel={() => setDeletingProduct(null)}
-    title="Supprimer l'article"
+    title="Supprimer le produit"
     submitButtonText="Supprimer"
     submitButtonColor="error"
   >
     <div className="my-3">
-      <p>Êtes-vous sûr de vouloir supprimer cet article ?</p>
+      <p>Êtes-vous sûr de vouloir supprimer ce produit ?</p>
     </div>
   </Modal>
 }
 
 type CreateProductModalProps = {
   createProductOpen: boolean;
-  setCreateModelOpen: (open: boolean) => void;
+  setCreateModalOpen: (open: boolean) => void;
   createProduct: (product: Partial<IProduct>) => Promise<void>;
 }
-function CreateProductModal({ createProductOpen, setCreateModelOpen, createProduct }: CreateProductModalProps) {
+function CreateProductModal({ createProductOpen, setCreateModalOpen, createProduct }: CreateProductModalProps) {
   const [name, setName] = useState('')
   const [quantity, setQuantity] = useState(0)
   const [buyingPrice, setBuyingPrice] = useState(0)
@@ -241,10 +239,10 @@ function CreateProductModal({ createProductOpen, setCreateModelOpen, createProdu
         quantity,
         buying_price: buyingPrice,
       })
-      setCreateModelOpen(false)
+      setCreateModalOpen(false)
     }}
-    onCancel={() => setCreateModelOpen(false)}
-    title="Créer un article"
+    onCancel={() => setCreateModalOpen(false)}
+    title="Créer un produit"
     submitButtonText="Créer"
   >
     <div className="my-3">

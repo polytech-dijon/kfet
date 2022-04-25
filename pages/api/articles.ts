@@ -4,41 +4,44 @@ import { mapPrismaItems } from '../../utils'
 import verifyJwt from '../../utils/verifyJwt'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import type { ApiResponse } from '../../types/api'
-import type { IArticle, IProduct } from '../../types/db'
+import type { IArticle } from '../../types/db'
 
-export type GetStocksResult = {
-  products: IProduct[];
+export type GetArticlesResult = {
+  articles: IArticle[];
 }
-export type PutStocksBody = {
-  product: IProduct;
+export type PutArticlesBody = {
+  article: IArticle;
 }
-export type PutStocksResult = {}
-export type DeleteStocksBody = {
+export type PutArticlesResult = {}
+export type DeleteArticlesBody = {
   id: number;
 }
-export type DeleteStocksResult = {}
-export type PostStocksBody = {
-  product: Partial<IProduct>;
+export type DeleteArticlesResult = {}
+export type PostArticlesBody = {
+  article: Partial<IArticle>;
 }
-export type PostStocksResult = {}
+export type PostArticlesResult = {}
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse<GetStocksResult | PutStocksResult>>) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse<GetArticlesResult | PutArticlesResult>>) {
   if (req.method === 'GET') {
 
     if (!verifyJwt({ req, res }))
       return
 
-    const products = await prisma.product.findMany({
+    const articles = await prisma.article.findMany({
       orderBy: [
         {
-          quantity: 'asc'
+          category: 'asc',
+        },
+        {
+          name: 'asc',
         },
       ],
     })
     prisma.$disconnect()
 
-    const data: GetStocksResult = {
-      products: mapPrismaItems(products),
+    const data: GetArticlesResult = {
+      articles: mapPrismaItems(articles),
     }
     res.status(200).json({
       ok: true,
@@ -51,18 +54,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     if (!verifyJwt({ req, res, verifyBodyData: true }))
       return
 
-    const { product }: PutStocksBody = req.body.data
-    if (!product)
+    const { article }: PutArticlesBody = req.body.data
+    if (!article)
       return res.status(400).json({ ok: false, error: 'Invalid data' })
 
-    await prisma.product.update({
+    await prisma.article.update({
       where: {
-        id: product.id,
+        id: article.id,
       },
       data: {
-        name: product.name,
-        quantity: product.quantity,
-        buying_price: new Prisma.Decimal(product.buying_price),
+        name: article.name,
+        category: article.category,
+        sell_price: new Prisma.Decimal(article.sell_price),
       },
     })
     prisma.$disconnect()
@@ -78,11 +81,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     if (!verifyJwt({ req, res, verifyBodyData: true }))
       return
 
-    const { id }: DeleteStocksBody = req.body.data
+    const { id }: DeleteArticlesBody = req.body.data
     if (typeof id !== 'number')
       return res.status(400).json({ ok: false, error: 'Invalid data' })
 
-    await prisma.product.update({
+    await prisma.article.update({
       where: {
         id,
       },
@@ -103,13 +106,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     if (!verifyJwt({ req, res, verifyBodyData: true }))
       return
 
-    const { product }: PostStocksBody = req.body.data
-    if (!product)
+    const { article }: PostArticlesBody = req.body.data
+    if (!article)
       return res.status(400).json({ ok: false, error: 'Invalid data' })
 
-    await prisma.product.create({
+    await prisma.article.create({
       data: {
-        ...(product as IProduct),
+        ...(article as IArticle),
       },
     })
     prisma.$disconnect()
