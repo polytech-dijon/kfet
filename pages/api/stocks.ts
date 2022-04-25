@@ -18,6 +18,10 @@ export type DeleteStocksBody = {
   id: number;
 }
 export type DeleteStocksResult = {}
+export type PostStocksBody = {
+  product: Partial<IProduct>;
+}
+export type PostStocksResult = {}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse<GetStocksResult | PutStocksResult>>) {
   if (req.method === 'GET') {
@@ -89,6 +93,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       },
       data: {
         deleted: true,
+      },
+    })
+    prisma.$disconnect()
+
+    res.status(200).json({
+      ok: true,
+      data: {},
+    })
+
+  }
+  else if (req.method === 'POST') {
+
+    if (!verifyJwt({ req, res, verifyBodyData: true }))
+      return
+
+    const { product }: PostStocksBody = req.body.data
+    if (!product)
+      return res.status(400).json({ ok: false, error: 'Invalid data' })
+
+    await prisma.product.create({
+      data: {
+        ...(product as IProduct),
       },
     })
     prisma.$disconnect()
