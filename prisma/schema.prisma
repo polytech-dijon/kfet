@@ -15,6 +15,7 @@ model Article {
     category        String
     products        Int[]
     image           String?
+    deleted         Boolean  @default(false)
 }
 
 model Product {
@@ -22,6 +23,7 @@ model Product {
     name            String
     quantity        Int
     buying_price    Decimal
+    deleted         Boolean  @default(false)
 }
 
 model Sale {

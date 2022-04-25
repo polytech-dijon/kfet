@@ -65,11 +65,14 @@ const ArticleList = ({ articles, addArticle }: ArticleListProps) => {
     {categories.map((category, key1) => <div key={key1}>
       <h2 className="px-4 my-2 text-2xl font-semibold">{categoryNames[category]}</h2>
       <div className="grid grid-cols-4 gap-4 p-4">
-        {articles.filter((article) => article.category === category).map((article, key2) => (
-          <div key={key2} className="p-6 card cursor-pointer text-2xl flex justify-center items-center h-32 select-none" onClick={() => addArticle(article)}>
-            <h3>{article.name}</h3>
-          </div>
-        ))}
+        {articles
+          .filter((article) => article.category === category && !article.deleted)
+          .map((article, key2) => (
+            <div key={key2} className="p-6 card cursor-pointer text-2xl flex justify-center items-center h-32 select-none" onClick={() => addArticle(article)}>
+              <h3>{article.name}</h3>
+            </div>
+          ))
+        }
       </div>
     </div>)}
   </div>
