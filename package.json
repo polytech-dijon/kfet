@@ -11,7 +11,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:migrate": "dotenv -e .env.local -- npx prisma migrate dev",
+    "db:migrate": "dotenv -e .env.local -- yarn prisma migrate dev",
     "db:seed": "dotenv -e .env.local -- ts-node --compilerOptions \"{\\\"target\\\": \\\"ES2017\\\", \\\"module\\\": \\\"commonjs\\\"}\" prisma/seed.ts"
   },
   "dependencies": {
@@ -47,6 +47,7 @@
     "eslint": "7",
     "eslint-config-next": "12.0.2",
     "postcss": "^8.4.5",
+    "prisma": "^3.12.0",
     "ts-node": "^10.4.0",
     "typescript": "4.4.4"
   }

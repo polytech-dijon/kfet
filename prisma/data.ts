@@ -37,6 +37,7 @@ export const articles = [
     sell_price: new Prisma.Decimal(0.70),
     category: Category.COLD_DRINKS,
     products: [6],
+    deleted: true,
   },
   {
     name: 'Oasis Tropical',
@@ -273,7 +274,8 @@ export const products = [
   {
     name: 'Green Ice Tea',
     quantity: 1000,
-    buying_price: new Prisma.Decimal(0.50), // à vérifier
+    buying_price: new Prisma.Decimal(0.50), // à vérifier,
+    deleted: true,
   },
   {
     name: 'Oasis Tropical',

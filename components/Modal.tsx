@@ -1,7 +1,5 @@
 import { Fragment } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
-import { RiCheckLine } from 'react-icons/ri'
-import { HiSelector } from 'react-icons/hi'
 
 export type ModalProps = {
   isOpen: boolean;

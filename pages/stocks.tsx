@@ -7,12 +7,13 @@ import Modal from '../components/Modal'
 import type { NextPage } from 'next'
 import type { IArticle, IProduct } from '../types/db'
 import type { ApiRequest } from '../types/api'
-import type { GetStocksResult, PutStocksBody, PutStocksResult } from './api/stocks'
+import type { DeleteStocksBody, DeleteStocksResult, GetStocksResult, PutStocksBody, PutStocksResult } from './api/stocks'
 
 const Stocks: NextPage = () => {
   const [articles, setArticles] = useState<IArticle[]>([])
   const [products, setProducts] = useState<IProduct[]>([])
   const [editingProduct, setEditingProduct] = useState<IProduct | null>(null);
+  const [deletingProduct, setDeletingProduct] = useState<IProduct | null>(null);
 
   async function getStocks() {
     try {
@@ -35,8 +36,25 @@ const Stocks: NextPage = () => {
       await getStocks()
       toast.success('Stock mis à jour !')
     }
-    catch {
-      toast.error('Une erreur est survenue')
+    catch (e) {
+      console.error(e)
+      toast.error('Une erreur est survenue...')
+    }
+  }
+
+  async function deleteProduct(product: IProduct) {
+    try {
+      await api.remove<DeleteStocksResult, ApiRequest<DeleteStocksBody>>('/api/stocks', {
+        data: {
+          id: product.id,
+        },
+      })
+      await getStocks()
+      toast.success('Article supprimé !')
+    }
+    catch (e) {
+      console.error(e)
+      toast.error('Une erreur est survenue...')
     }
   }
 
@@ -84,8 +102,9 @@ const Stocks: NextPage = () => {
                       <td className="px-6 py-4">
                         {product.buying_price}€
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 flex">
                         <button className="button w-24" onClick={() => setEditingProduct(product)}>Éditer</button>
+                        <button className="button red ml-3 w-24" onClick={() => setDeletingProduct(product)}>Supprimer</button>
                       </td>
                     </tr>
                   ))}
@@ -96,6 +115,7 @@ const Stocks: NextPage = () => {
         )}
       </div>
       <EditProductModal editingProduct={editingProduct} setEditingProduct={setEditingProduct} updateProduct={updateProduct} />
+      <DeleteProductModal deletingProduct={deletingProduct} setDeletingProduct={setDeletingProduct} deleteProduct={deleteProduct} />
     </>
   )
 }
@@ -121,11 +141,13 @@ function EditProductModal({ editingProduct, setEditingProduct, updateProduct }: 
   return <Modal
     isOpen={editingProduct !== null}
     onSubmit={async () => {
+      if (!editingProduct) return
       await updateProduct({
-        id: editingProduct!.id,
+        id: editingProduct.id,
         name,
         quantity,
-        buying_price: buyingPrice
+        buying_price: buyingPrice,
+        deleted: editingProduct.deleted
       })
       setEditingProduct(null)
     }}
@@ -144,6 +166,30 @@ function EditProductModal({ editingProduct, setEditingProduct, updateProduct }: 
     <div className="my-3">
       <label htmlFor="productBuyingPrice" className="block mb-2 text-sm font-medium text-gray-900">Prix d&apos;achat :</label>
       <input type="number" id="productBuyingPrice" value={buyingPrice} onChange={(e) => setBuyingPrice(parseFloat(e.target.value))} step={0.05} min={0} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required />
+    </div>
+  </Modal>
+}
+
+type DeleteProductModalProps = {
+  deletingProduct: IProduct | null;
+  setDeletingProduct: (product: IProduct | null) => void;
+  deleteProduct: (product: IProduct) => Promise<void>;
+}
+function DeleteProductModal({ deletingProduct, setDeletingProduct, deleteProduct }: DeleteProductModalProps) {
+  return <Modal
+    isOpen={deletingProduct !== null}
+    onSubmit={async () => {
+      if (!deletingProduct) return
+      await deleteProduct({ ...deletingProduct })
+      setDeletingProduct(null)
+    }}
+    onCancel={() => setDeletingProduct(null)}
+    title="Supprimer l'article"
+    submitButtonText="Supprimer"
+    submitButtonColor="error"
+  >
+    <div className="my-3">
+      <p>Êtes-vous sûr de vouloir supprimer cet article ?</p>
     </div>
   </Modal>
 }

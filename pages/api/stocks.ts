@@ -14,6 +14,10 @@ export type PutStocksBody = {
   product: IProduct;
 }
 export type PutStocksResult = {}
+export type DeleteStocksBody = {
+  id: number;
+}
+export type DeleteStocksResult = {}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse<GetStocksResult | PutStocksResult>>) {
   if (req.method === 'GET') {
@@ -60,6 +64,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         name: product.name,
         quantity: product.quantity,
         buying_price: new Prisma.Decimal(product.buying_price),
+      },
+    })
+    prisma.$disconnect()
+
+    res.status(200).json({
+      ok: true,
+      data: {},
+    })
+
+  }
+  else if (req.method === 'DELETE') {
+
+    if (!verifyJwt({ req, res, verifyBodyData: true }))
+      return
+
+    const { id }: DeleteStocksBody = req.body.data
+    if (typeof id !== 'number')
+      return res.status(400).json({ ok: false, error: 'Invalid data' })
+
+    await prisma.product.update({
+      where: {
+        id,
+      },
+      data: {
+        deleted: true,
       },
     })
     prisma.$disconnect()
