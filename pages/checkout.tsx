@@ -9,13 +9,14 @@ import { articlesById, mapPrismaItems, Round } from '../utils'
 import { categories, categoryNames, paiementMethods, paiementMethodsNames } from '../utils/db-enum'
 import { PaiementMethod } from '../types/db'
 import type { GetServerSideProps, NextPage } from 'next'
-import type { IArticle, IProduct } from '../types/db'
+import type { IArticle, IProduct, Category } from '../types/db'
 
 interface CheckoutProps {
   articles: IArticle[];
   products: IProduct[];
 }
 const Checkout: NextPage<CheckoutProps> = ({ articles, products }) => {
+  const [categoryOpen, setCategoryOpen] = useState<Category | null>(null)
   const [card, setCard] = useState<IArticle[]>([])
 
   function addArticle(article: IArticle) {
@@ -49,7 +50,24 @@ const Checkout: NextPage<CheckoutProps> = ({ articles, products }) => {
         <meta name="description" content="Gestion de la caisse" />
       </Head>
       <div className="grow flex items-stretch">
-        <ArticleList articles={articles} addArticle={addArticle} />
+        {!categoryOpen && (
+          <div className="grow container h-[calc(100vh-64px)] overflow-y-auto">
+            <div className="flex flex-col justify-center items-center h-full">
+              <div className="mt-8 grid grid-cols-2 gap-4">
+                {categories.map((category, key) => (
+                  <div
+                    key={key}
+                    className="p-16 card cursor-pointer text-2xl flex justify-center items-center h-32 select-none"
+                    onClick={() => setCategoryOpen(category)}
+                  >
+                    {categoryNames[category]}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+        {categoryOpen && <ArticleList articles={articles} category={categoryOpen} setCategoryOpen={setCategoryOpen} addArticle={addArticle} />}
         <CardOverview card={card} setCard={setCard} submitCard={submitCard} />
       </div>
     </>
@@ -58,23 +76,28 @@ const Checkout: NextPage<CheckoutProps> = ({ articles, products }) => {
 
 type ArticleListProps = {
   articles: IArticle[];
+  category: Category;
+  setCategoryOpen: (category: Category | null) => void;
   addArticle: (article: IArticle) => void;
 }
-const ArticleList = ({ articles, addArticle }: ArticleListProps) => {
+const ArticleList = ({ articles, category, setCategoryOpen, addArticle }: ArticleListProps) => {
   return <div className="grow container h-[calc(100vh-64px)] overflow-y-auto">
-    {categories.map((category, key1) => <div key={key1}>
-      <h2 className="px-4 my-2 text-2xl font-semibold">{categoryNames[category]}</h2>
-      <div className="grid grid-cols-4 gap-4 p-4">
-        {articles
-          .filter((article) => article.category === category && !article.deleted)
-          .map((article, key2) => (
-            <div key={key2} className="p-6 card cursor-pointer text-2xl flex justify-center items-center h-32 select-none" onClick={() => addArticle(article)}>
-              <h3>{article.name}</h3>
-            </div>
-          ))
-        }
-      </div>
-    </div>)}
+    <h2 className="px-4 my-2 text-2xl font-semibold">{categoryNames[category]}</h2>
+    <div className="grid grid-cols-4 gap-4 p-4">
+      {articles
+        .filter((article) => article.category === category && !article.deleted)
+        .map((article, key2) => (
+          <div key={key2} className="p-6 card cursor-pointer text-2xl flex justify-center items-center h-32 select-none" onClick={() => addArticle(article)}>
+            <h3>{article.name}</h3>
+          </div>
+        ))
+      }
+    </div>
+    <div className="flex justify-center">
+      <button className="p-16 card cursor-pointer text-2xl flex justify-center items-center h-32 select-none" onClick={() => setCategoryOpen(null)}>
+        Retour
+      </button>
+    </div>
   </div>
 }
 

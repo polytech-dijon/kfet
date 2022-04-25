@@ -21,16 +21,20 @@ export const links: NavbarLink[] = [
     href: "/checkout",
   },
   {
-    text: "Stocks",
-    href: "/stocks",
+    text: "Résumé",
+    href: "/summary",
   },
   {
     text: "Ventes",
     href: "/sales",
   },
   {
-    text: "Résumé",
-    href: "/summary",
+    text: "Stocks",
+    href: "/stocks",
+  },
+  {
+    text: "Articles",
+    href: "/articles",
   },
 ]
 

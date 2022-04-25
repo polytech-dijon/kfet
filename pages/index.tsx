@@ -17,9 +17,9 @@ const Home: NextPage = () => {
               Ouvrir la caisse
             </a>
           </Link>
-          <Link href="/stocks">
+          <Link href="/summary">
             <a className="p-8 card text-xl uppercase w-full text-center font-semibold">
-              Gestion des stocks
+              Résumé
             </a>
           </Link>
           <Link href="/sales">
@@ -27,9 +27,14 @@ const Home: NextPage = () => {
               Ventes
             </a>
           </Link>
-          <Link href="/summary">
+          <Link href="/stocks">
             <a className="p-8 card text-xl uppercase w-full text-center font-semibold">
-              Résumé
+              Gestion des stocks
+            </a>
+          </Link>
+          <Link href="/articles">
+            <a className="p-8 card text-xl uppercase w-full text-center font-semibold">
+              Gestion des articles
             </a>
           </Link>
         </div>
