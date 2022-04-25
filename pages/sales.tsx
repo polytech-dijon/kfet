@@ -10,6 +10,7 @@ import type { NextPage } from 'next'
 import type { IArticle, ISale } from '../types/db'
 import type { ApiRequest } from '../types/api'
 import type { GetSalesBody, GetSalesResult, DeleteSalesResult, DeleteSalesBody } from './api/sales'
+import { RiDeleteBinFill } from 'react-icons/ri'
 
 const Sales: NextPage = () => {
   const [sales, setSales] = useState<ISale[]>([])
@@ -88,7 +89,7 @@ const Sales: NextPage = () => {
         {(articles.length > 0 && articles.length > 0 && pageCount > 0) && <div className="flex flex-col items-center">
           <div className="relative overflow-x-auto shadow-md sm:rounded-lg w-full">
             <table className="w-full text-sm text-left text-gray-500">
-              <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+              <thead className="text-sm text-gray-700 uppercase bg-gray-50">
                 <tr>
                   <th scope="col" className="px-6 py-3 w-1/3">
                     Articles
@@ -122,8 +123,10 @@ const Sales: NextPage = () => {
                     <td className="px-6 py-4">
                       {new Date(sale.created_at).toLocaleString()}
                     </td>
-                    <td className="px-6 py-4">
-                      <button className="button red" onClick={() => setDeletingSale(sale)}>Supprimer</button>
+                    <td className="px-6 py-1">
+                      <button className="button red" onClick={() => setDeletingSale(sale)}>
+                        <RiDeleteBinFill size={20} />
+                      </button>
                     </td>
                   </tr>
                 ))}

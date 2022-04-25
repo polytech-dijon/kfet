@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Head from 'next/head'
 import toast from 'react-hot-toast'
-import { RiAddLine } from 'react-icons/ri'
+import { RiAddLine, RiDeleteBinFill, RiEditFill } from 'react-icons/ri'
 import { withAuthentication } from '../components/withAuthentication'
 import api from '../services/api'
 import Modal from '../components/Modal'
@@ -90,7 +90,7 @@ const Stocks: NextPage = () => {
         <div className="flex justify-between items-center">
           <h1 className="text-4xl text-center my-8">Gestion des stocks :</h1>
           <button className="button flex items-center" onClick={() => setCreateModelOpen(true)}>
-            <RiAddLine className="mr-1.5" size={24} />
+            <RiAddLine className="-ml-1.5 mr-1" size={24} />
             Nouveau produit
           </button>
         </div>
@@ -98,7 +98,7 @@ const Stocks: NextPage = () => {
           <div className="flex flex-col items-center">
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg w-full">
               <table className="w-full text-sm text-left text-gray-500">
-                <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                <thead className="text-sm text-gray-700 uppercase bg-gray-50">
                   <tr>
                     <th scope="col" className="px-6 py-3 w-2/5">
                       Nom du produit
@@ -116,7 +116,7 @@ const Stocks: NextPage = () => {
                 </thead>
                 <tbody>
                   {products.map((product, key) => (
-                    <tr key={key} className="bg-white">
+                    <tr key={key} className="odd:bg-white even:bg-gray-50">
                       <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                         {product.name}
                       </th>
@@ -126,9 +126,13 @@ const Stocks: NextPage = () => {
                       <td className="px-6 py-4">
                         {product.buying_price}€
                       </td>
-                      <td className="px-6 py-4 flex">
-                        <button className="button w-24" onClick={() => setEditingProduct(product)}>Éditer</button>
-                        <button className="button red ml-3 w-24" onClick={() => setDeletingProduct(product)}>Supprimer</button>
+                      <td className="px-6 py-1 flex">
+                        <button className="button" onClick={() => setEditingProduct(product)}>
+                          <RiEditFill size={20} />
+                        </button>
+                        <button className="button red ml-3" onClick={() => setDeletingProduct(product)}>
+                          <RiDeleteBinFill size={20} />
+                        </button>
                       </td>
                     </tr>
                   ))}
