@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import Head from 'next/head'
 import toast from 'react-hot-toast'
-import { RiAddLine, RiSubtractLine } from 'react-icons/ri'
+import { RiAddLine, RiSubtractLine, RiArrowGoBackFill } from 'react-icons/ri'
 import { withAuthentication } from '../components/withAuthentication'
 import prisma from '../prisma'
 import api from '../services/api'
@@ -26,6 +26,8 @@ const Checkout: NextPage<CheckoutProps> = ({ articles, products }) => {
   async function submitCard(paiementMethod: PaiementMethod) {
     if (card.length === 0)
       return
+
+    setCategoryOpen(null)
 
     try {
       await api.post('/api/checkout', {
@@ -81,20 +83,23 @@ type ArticleListProps = {
   addArticle: (article: IArticle) => void;
 }
 const ArticleList = ({ articles, category, setCategoryOpen, addArticle }: ArticleListProps) => {
-  return <div className="grow container h-[calc(100vh-64px)] overflow-y-auto">
-    <h2 className="px-4 my-2 text-2xl font-semibold">{categoryNames[category]}</h2>
-    <div className="grid grid-cols-4 gap-4 p-4">
-      {articles
-        .filter((article) => article.category === category && !article.deleted)
-        .map((article, key2) => (
-          <div key={key2} className="p-6 card cursor-pointer text-2xl flex justify-center items-center h-32 select-none" onClick={() => addArticle(article)}>
-            <h3>{article.name}</h3>
-          </div>
-        ))
-      }
+  return <div className="grow container h-[calc(100vh-64px)] overflow-y-auto flex flex-col justify-between py-4">
+    <div className="grow">
+      <h2 className="px-4 my-2 text-2xl font-semibold">{categoryNames[category]}</h2>
+      <div className="grid grid-cols-4 gap-4 p-4">
+        {articles
+          .filter((article) => article.category === category && !article.deleted)
+          .map((article, key2) => (
+            <div key={key2} className="p-6 card cursor-pointer text-2xl flex justify-center items-center h-32 select-none" onClick={() => addArticle(article)}>
+              <h3>{article.name}</h3>
+            </div>
+          ))
+        }
+      </div>
     </div>
     <div className="flex justify-center">
       <button className="p-16 card cursor-pointer text-2xl flex justify-center items-center h-32 select-none" onClick={() => setCategoryOpen(null)}>
+        <RiArrowGoBackFill size={32} className="-ml-1.5 mr-4" />
         Retour
       </button>
     </div>

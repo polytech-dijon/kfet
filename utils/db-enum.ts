@@ -8,7 +8,7 @@ export const categories: Category[] = [
 ]
 
 export const categoryNames: { [key: string]: string } = {
-  HOT_DRINKS: 'Boissons chaude',
+  HOT_DRINKS: 'Boissons chaudes',
   COLD_DRINKS: 'Boissons froides',
   SWEET: 'Sucré',
   SALTY: 'Salé',
