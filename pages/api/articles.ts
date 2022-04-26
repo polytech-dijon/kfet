@@ -4,9 +4,10 @@ import { mapPrismaItems } from '../../utils'
 import verifyJwt from '../../utils/verifyJwt'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import type { ApiResponse } from '../../types/api'
-import type { IArticle } from '../../types/db'
+import type { IArticle, IProduct } from '../../types/db'
 
 export type GetArticlesResult = {
+  products: IProduct[];
   articles: IArticle[];
 }
 export type PutArticlesBody = {
@@ -28,19 +29,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     if (!verifyJwt({ req, res }))
       return
 
-    const articles = await prisma.article.findMany({
-      orderBy: [
-        {
-          category: 'asc',
+    const [products, articles] = await Promise.all([
+      prisma.product.findMany(),
+      prisma.article.findMany({
+        where: {
+          deleted: false
         },
-        {
-          name: 'asc',
-        },
-      ],
-    })
+        orderBy: [
+          {
+            category: 'asc',
+          },
+          {
+            name: 'asc',
+          },
+        ],
+      }),
+    ])
     prisma.$disconnect()
 
     const data: GetArticlesResult = {
+      products: mapPrismaItems(products),
       articles: mapPrismaItems(articles),
     }
     res.status(200).json({
@@ -66,6 +74,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         name: article.name,
         category: article.category,
         sell_price: new Prisma.Decimal(article.sell_price),
+        products: article.products,
       },
     })
     prisma.$disconnect()
