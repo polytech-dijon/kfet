@@ -175,10 +175,10 @@ function EditArticleModal({ editingArticle, setEditingArticle, products, updateA
   }, [editingArticle]);
 
   const multiSelectOptions = products
+    .filter((product) => !product.deleted)
     .map((product) => ({
       value: product.id,
       label: product.name,
-      deleted: product.deleted,
     }))
 
   return <Modal
@@ -222,7 +222,7 @@ function EditArticleModal({ editingArticle, setEditingArticle, products, updateA
     <div className="my-3">
       <label className="block mb-2 text-sm font-medium text-gray-900">Produits :</label>
       <MultiSelect
-        options={multiSelectOptions.filter((product) => !product.deleted)}
+        options={multiSelectOptions}
         placeholder="Sélectionnez un ou plusieurs produits"
         isMulti
         value={articleProducts.map((articleProduct) => multiSelectOptions.find((option) => option.value === articleProduct))}
@@ -270,10 +270,10 @@ function CreateArticleModal({ createArticleOpen, setCreateModalOpen, products, c
   const [articleProducts, setArticleProducts] = useState<number[]>([])
 
   const multiSelectOptions = products
+  .filter((product) => !product.deleted)
     .map((product) => ({
       value: product.id,
       label: product.name,
-      deleted: product.deleted,
     }))
 
   return <Modal
@@ -312,7 +312,7 @@ function CreateArticleModal({ createArticleOpen, setCreateModalOpen, products, c
     <div className="my-3">
       <label className="block mb-2 text-sm font-medium text-gray-900">Produits :</label>
       <MultiSelect
-        options={multiSelectOptions.filter((product) => !product.deleted)}
+        options={multiSelectOptions}
         placeholder="Sélectionnez un ou plusieurs produits"
         isMulti
         value={articleProducts.map((articleProduct) => multiSelectOptions.find((option) => option.value === articleProduct))}
