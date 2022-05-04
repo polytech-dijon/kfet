@@ -85,6 +85,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     if (typeof id !== 'number')
       return res.status(400).json({ ok: false, error: 'Invalid data' })
 
+    const articles = await prisma.article.findMany({})
+
+    for (let article of articles) {
+      if (article.products.includes(id)) {
+        await prisma.article.update({
+          where: {
+            id: article.id,
+          },
+          data: {
+            products: article.products.filter((product) => product !== id),
+          },
+        })
+      }
+    }
+
     await prisma.product.update({
       where: {
         id,

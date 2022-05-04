@@ -269,6 +269,7 @@ function CreateArticleModal({ createArticleOpen, setCreateModalOpen, products, c
   const [articleProducts, setArticleProducts] = useState<number[]>([])
 
   const multiSelectOptions = products
+    .filter((product) => !product.deleted)
     .map((product) => ({
       value: product.id,
       label: product.name,
