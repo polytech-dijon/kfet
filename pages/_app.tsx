@@ -69,7 +69,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <Component {...pageProps} />
       </div>
     )}
-    <Toaster />
+    <Toaster containerStyle={{ top: 50 }} />
   </div>
 }
 

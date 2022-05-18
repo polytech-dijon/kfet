@@ -86,16 +86,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       return res.status(400).json({ ok: false, error: 'Invalid data' })
 
     if (updateStocks) {
-      const products = sale.articles
-      const differentProducts = [...new Set(products)]
-      for (let productId of differentProducts) {
+      const articles = sale.articles
+      const differentProducts = new Map<number, number>()
+      for (let articleId of articles) {
+        const article = await prisma.article.findUnique({
+          where: { id: articleId },
+        })
+        if (article) {
+          for (let productId of article.products)
+            differentProducts.set(productId, (differentProducts.get(productId) ?? 0) + 1)
+        }
+      }
+      for (let productId of differentProducts.keys()) {
         await prisma.product.update({
           where: { id: productId },
           data: {
             quantity: {
-              increment: products.filter((item: number) => item === productId).length
-            }
-          }
+              increment: differentProducts.get(productId) ?? 0,
+            },
+          },
         })
       }
     }
