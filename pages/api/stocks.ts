@@ -34,7 +34,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       },
       orderBy: [
         {
-          quantity: 'asc'
+          name: 'asc',
+        },
+        {
+          quantity: 'asc',
         },
       ],
     })

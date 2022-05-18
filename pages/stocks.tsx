@@ -241,6 +241,9 @@ function CreateProductModal({ createProductOpen, setCreateModalOpen, createProdu
         buying_price: buyingPrice,
       })
       setCreateModalOpen(false)
+      setName('')
+      setQuantity(0)
+      setBuyingPrice(0)
     }}
     onCancel={() => setCreateModalOpen(false)}
     title="Créer un produit"

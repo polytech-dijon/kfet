@@ -286,6 +286,10 @@ function CreateArticleModal({ createArticleOpen, setCreateModalOpen, products, c
         products: articleProducts,
       })
       setCreateModalOpen(false)
+      setName('')
+      setCategory(Category.COLD_DRINKS)
+      setSellPrice(0)
+      setArticleProducts([])
     }}
     onCancel={() => setCreateModalOpen(false)}
     title="Créer un article"
