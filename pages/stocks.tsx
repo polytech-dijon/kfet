@@ -5,6 +5,7 @@ import { RiAddLine, RiDeleteBinFill, RiEditFill } from 'react-icons/ri'
 import { withAuthentication } from '../components/withAuthentication'
 import api from '../services/api'
 import Modal from '../components/Modal'
+import { Round } from '../utils'
 import type { NextPage } from 'next'
 import type { IProduct } from '../types/db'
 import type { ApiRequest } from '../types/api'
@@ -122,7 +123,7 @@ const Stocks: NextPage = () => {
                         {product.quantity}
                       </td>
                       <td className="px-6 py-4">
-                        {product.buying_price}€
+                        {Round(product.buying_price)}€
                       </td>
                       <td className="px-6 py-1 flex">
                         <button className="button" onClick={() => setEditingProduct(product)}>

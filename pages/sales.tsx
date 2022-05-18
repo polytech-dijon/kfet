@@ -118,7 +118,7 @@ const Sales: NextPage = () => {
                       {paiementMethodsNames[sale.paiement_method]}
                     </td>
                     <td className="px-6 py-4">
-                      {sale.sell_price}€
+                      {Round(sale.sell_price)}€
                     </td>
                     <td className="px-6 py-4">
                       {new Date(sale.created_at).toLocaleString()}
