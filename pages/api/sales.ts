@@ -7,7 +7,8 @@ import type { IArticle, ISale, PaiementMethod } from '../../types/db'
 
 export type GetSalesBody = {
   page: number;
-  date: string | null;
+  startDate: string | null;
+  endDate: string | null;
 }
 export type GetSalesResult = {
   articles: IArticle[];
@@ -26,21 +27,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
   if (req.method === 'POST') {
 
-    const { page, date }: GetSalesBody = req.body.data
-    if (!Number.isInteger(page) || (typeof date !== 'string' && date !== null))
+    const { page, startDate, endDate }: GetSalesBody = req.body.data
+    if (!Number.isInteger(page) || (typeof startDate !== 'string' && startDate !== null) || (typeof endDate !== 'string' && endDate !== null))
       return res.status(400).json({ ok: false, error: 'Invalid data' })
 
     const limit = 15
-    let where = {}
-    if (date) {
-      const created_at = new Date(date)
-      where = {
-        created_at: {
-          gte: created_at,
-          lt: new Date(created_at.getTime() + 86400000),
-        },
+    let where: any = {}
+    if (startDate) {
+      const created_at = new Date(startDate)
+      where.created_at = {
+        gte: created_at,
       }
     }
+    if (endDate) {
+      const created_at = new Date(endDate)
+      where.created_at = {
+        ...(where.created_at || {}),
+        lte: created_at,
+      }
+    }
+    console.log(where)
 
     const [articles, sales, saleCount] = await Promise.all([
       await prisma.article.findMany(),
@@ -49,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         skip: page * limit,
         orderBy: [
           {
-            created_at: 'desc'
+            created_at: 'asc'
           },
         ],
         where,

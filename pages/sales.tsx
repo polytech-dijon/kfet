@@ -17,7 +17,8 @@ const Sales: NextPage = () => {
   const [articles, setArticles] = useState<IArticle[]>([])
   const [pageCount, setPageCount] = useState<number>(0)
   const [salesPage, setSalesPage] = useState(0)
-  const [salesDate, setSalesDate] = useState('')
+  const [salesStartDate, setSalesStartDate] = useState('')
+  const [salesEndDate, setSalesEndDate] = useState('')
   const [deletingSale, setDeletingSale] = useState<ISale | null>(null)
 
   async function getSales() {
@@ -25,7 +26,8 @@ const Sales: NextPage = () => {
       const { data } = await api.post<GetSalesResult, ApiRequest<GetSalesBody>>('/api/sales', {
         data: {
           page: salesPage,
-          date: salesDate || null,
+          startDate: salesStartDate || null,
+          endDate: salesEndDate || null,
         }
       })
       setSales(data.sales)
@@ -55,10 +57,10 @@ const Sales: NextPage = () => {
 
   useEffect(() => {
     getSales()
-  }, [salesPage, salesDate])
+  }, [salesPage, salesStartDate, salesEndDate])
   useEffect(() => {
     setSalesPage(0)
-  }, [salesDate])
+  }, [salesStartDate, salesEndDate])
 
   return (
     <>
@@ -68,16 +70,24 @@ const Sales: NextPage = () => {
       </Head>
       <div className="grow container flex flex-col py-4">
         <div className="flex justify-between items-center">
-          <h1 className="text-4xl text-center my-8">Ventes :</h1>
-          <div className="text-xl">
-            <span className="mr-2">Date des ventes :</span>
+          <h1 className="text-4xl text-center mt-8">Détails des ventes</h1>
+        </div>
+        <div className="shadow-md sm:rounded-lg w-full mt-6 mb-8 p-4 bg-white">
+          <h3 className="text-xl">Filtres :</h3>
+          <div className="mt-2">
+            <span className="mr-1">Date entre </span>
             <input
               type="date"
-              id="start"
-              name="trip-start"
-              value={salesDate}
-              onChange={(e) => setSalesDate(e.target.value)}
-              className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2"
+              value={salesStartDate}
+              onChange={(e) => setSalesStartDate(e.target.value)}
+              className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-2.5 py-1"
+            />
+            <span className="mx-1"> et </span>
+            <input
+              type="date"
+              value={salesEndDate}
+              onChange={(e) => setSalesEndDate(e.target.value)}
+              className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-2.5 py-1 mr-1"
             />
           </div>
         </div>
