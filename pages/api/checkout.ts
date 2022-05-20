@@ -5,17 +5,24 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import type { ApiResponse } from '../../types/api'
 import type { IArticle, PaiementMethod } from '../../types/db'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse>) {
+export type PostCheckoutBody = {
+  card: IArticle[];
+  paiementMethod: PaiementMethod;
+  priceAdjustment: number;
+}
+export type PostCheckoutResult = {}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse<PostCheckoutResult>>) {
   if (!verifyJwt({ req, res, verifyBodyData: true }))
     return
 
-  const { card, paiementMethod }: { card: IArticle[], paiementMethod: PaiementMethod } = req.body.data
-  if (!card || !paiementMethod)
+  const { card, paiementMethod, priceAdjustment }: PostCheckoutBody = req.body.data
+  if (!card || !paiementMethod || typeof priceAdjustment !== 'number')
     return res.status(400).json({ ok: false, error: 'Invalid data' })
 
   const originalProducts = await prisma.product.findMany({})
 
-  const sellPrice = new Prisma.Decimal(card.map((item: IArticle) => item.sell_price).reduce((a, b) => a + b))
+  const sellPrice = new Prisma.Decimal(card.map((item: IArticle) => item.sell_price).reduce((a, b) => a + b) + priceAdjustment)
   const buyingPrice = new Prisma.Decimal(
     card.map((item: IArticle) => {
       return item.products.map((productId) => {
