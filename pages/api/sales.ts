@@ -9,6 +9,7 @@ export type GetSalesBody = {
   page: number;
   startDate: string | null;
   endDate: string | null;
+  paiementMethod: PaiementMethod | null;
 }
 export type GetSalesResult = {
   articles: IArticle[];
@@ -27,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
   if (req.method === 'POST') {
 
-    const { page, startDate, endDate }: GetSalesBody = req.body.data
+    const { page, startDate, endDate, paiementMethod }: GetSalesBody = req.body.data
     if (!Number.isInteger(page) || (typeof startDate !== 'string' && startDate !== null) || (typeof endDate !== 'string' && endDate !== null))
       return res.status(400).json({ ok: false, error: 'Invalid data' })
 
@@ -46,7 +47,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         lte: created_at,
       }
     }
-    console.log(where)
+    if (paiementMethod)
+      where.paiement_method = paiementMethod
 
     const [articles, sales, saleCount] = await Promise.all([
       await prisma.article.findMany(),

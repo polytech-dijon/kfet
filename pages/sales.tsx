@@ -1,16 +1,17 @@
 import { useEffect, useState, Fragment } from 'react'
 import Head from 'next/head'
 import toast from 'react-hot-toast'
+import { RiDeleteBinFill } from 'react-icons/ri'
 import { withAuthentication } from '../components/withAuthentication'
+import Select from '../components/Select'
 import api from '../services/api'
 import Modal from '../components/Modal'
 import { articlesById, Round } from '../utils'
-import { paiementMethodsNames } from '../utils/db-enum'
+import { paiementMethods, paiementMethodsNames } from '../utils/db-enum'
 import type { NextPage } from 'next'
-import type { IArticle, ISale } from '../types/db'
+import type { IArticle, ISale, PaiementMethod } from '../types/db'
 import type { ApiRequest } from '../types/api'
 import type { GetSalesBody, GetSalesResult, DeleteSalesResult, DeleteSalesBody } from './api/sales'
-import { RiDeleteBinFill } from 'react-icons/ri'
 
 const Sales: NextPage = () => {
   const [sales, setSales] = useState<ISale[]>([])
@@ -19,6 +20,7 @@ const Sales: NextPage = () => {
   const [salesPage, setSalesPage] = useState(0)
   const [salesStartDate, setSalesStartDate] = useState('')
   const [salesEndDate, setSalesEndDate] = useState('')
+  const [salesPaiementMethod, setSalesPaiementMethod] = useState<PaiementMethod | null>(null)
   const [deletingSale, setDeletingSale] = useState<ISale | null>(null)
 
   async function getSales() {
@@ -28,6 +30,7 @@ const Sales: NextPage = () => {
           page: salesPage,
           startDate: salesStartDate || null,
           endDate: salesEndDate || null,
+          paiementMethod: salesPaiementMethod,
         }
       })
       setSales(data.sales)
@@ -57,10 +60,10 @@ const Sales: NextPage = () => {
 
   useEffect(() => {
     getSales()
-  }, [salesPage, salesStartDate, salesEndDate])
+  }, [salesPage, salesStartDate, salesEndDate, salesPaiementMethod])
   useEffect(() => {
     setSalesPage(0)
-  }, [salesStartDate, salesEndDate])
+  }, [salesStartDate, salesEndDate, salesPaiementMethod])
 
   return (
     <>
@@ -75,19 +78,29 @@ const Sales: NextPage = () => {
         <div className="shadow-md sm:rounded-lg w-full mt-6 mb-8 p-4 bg-white">
           <h3 className="text-xl">Filtres :</h3>
           <div className="mt-2">
-            <span className="mr-1">Date entre </span>
+            <span className="mr-1">Entre le </span>
             <input
               type="date"
               value={salesStartDate}
               onChange={(e) => setSalesStartDate(e.target.value)}
-              className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-2.5 py-1"
+              className="text-gray-900 bg-gray-50 border border-gray-300 focus:outline-none focus:border-blue-500 font-medium rounded-lg text-sm px-2.5 py-2"
             />
-            <span className="mx-1"> et </span>
+            <span className="mx-1"> et le </span>
             <input
               type="date"
               value={salesEndDate}
               onChange={(e) => setSalesEndDate(e.target.value)}
-              className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-2.5 py-1 mr-1"
+              className="text-gray-900 bg-gray-50 border border-gray-300 focus:outline-none focus:border-blue-500 font-medium rounded-lg text-sm px-2.5 py-2"
+            />
+          </div>
+          <div className="mt-2 flex items-center">
+            <span className="mr-1.5">Moyen de paiement :</span>
+            <Select
+              value={salesPaiementMethod}
+              setValue={setSalesPaiementMethod}
+              values={[null, ...paiementMethods]}
+              accessor={(method) => method ? paiementMethodsNames[method] : 'Tous'}
+              className="w-40"
             />
           </div>
         </div>

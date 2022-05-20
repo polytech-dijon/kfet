@@ -8,11 +8,11 @@ import Select from '../components/Select'
 import Modal from '../components/Modal'
 import MultiSelect from '../components/MultiSelect'
 import { Category } from '../types/db'
+import { categories, categoryNames } from '../utils/db-enum'
 import type { NextPage } from 'next'
 import type { IArticle, IProduct } from '../types/db'
 import type { ApiRequest } from '../types/api'
 import type { DeleteArticlesBody, DeleteArticlesResult, GetArticlesResult, PostArticlesBody, PostArticlesResult, PutArticlesBody, PutArticlesResult } from './api/articles'
-import { categories, categoryNames } from '../utils/db-enum'
 
 const Articles: NextPage = () => {
   const [products, setProducts] = useState<IProduct[]>([])
