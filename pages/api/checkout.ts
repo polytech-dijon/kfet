@@ -13,11 +13,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   if (!card || !paiementMethod)
     return res.status(400).json({ ok: false, error: 'Invalid data' })
 
+  const originalProducts = await prisma.product.findMany({})
+
+  const sellPrice = new Prisma.Decimal(card.map((item: IArticle) => item.sell_price).reduce((a, b) => a + b))
+  const buyingPrice = new Prisma.Decimal(
+    card.map((item: IArticle) => {
+      return item.products.map((productId) => {
+        const product = originalProducts.find((item) => item.id === productId)
+        return product ? product.buying_price.toNumber() : 0
+      }).reduce((a, b) => a + b, 0)
+    }).reduce((a, b) => a + b, 0)
+  )
+
   await prisma.sale.create({
     data: {
       paiement_method: paiementMethod,
       articles: card.map((item: IArticle) => item.id),
-      sell_price: new Prisma.Decimal(card.map((item: IArticle) => item.sell_price).reduce((a: number, b: number) => a + b)),
+      sell_price: sellPrice,
+      buying_price: buyingPrice,
     }
   })
   prisma.$disconnect()

@@ -11,7 +11,8 @@ import type { ApiRequest } from '../types/api'
 import type { GetSummaryBody, GetSummaryResult } from './api/summary'
 
 const Sales: NextPage = () => {
-  const [priceSummaryByPaiementMethod, setPriceSummaryByPaiementMethod] = useState<GetSummaryResult['priceSummaryByPaiementMethod']>([])
+  const [sellPriceSummaryByPaiementMethod, setSellPriceSummaryByPaiementMethod] = useState<GetSummaryResult['sellPriceSummaryByPaiementMethod']>([])
+  const [buyingPriceSummaryByPaiementMethod, setBuyingPriceSummaryByPaiementMethod] = useState<GetSummaryResult['buyingPriceSummaryByPaiementMethod']>([])
   const [summaryArticles, setSummaryArticles] = useState<number[]>([])
   const [summaryStartDate, setSummaryStartDate] = useState('')
   const [summaryEndDate, setSummaryndDate] = useState('')
@@ -25,7 +26,8 @@ const Sales: NextPage = () => {
           endDate: summaryEndDate || null,
         }
       })
-      setPriceSummaryByPaiementMethod(data.priceSummaryByPaiementMethod)
+      setSellPriceSummaryByPaiementMethod(data.sellPriceSummaryByPaiementMethod)
+      setBuyingPriceSummaryByPaiementMethod(data.buyingPriceSummaryByPaiementMethod)
       setSummaryArticles(data.summaryArticles)
       setArticles(data.articles)
     }
@@ -38,7 +40,7 @@ const Sales: NextPage = () => {
     getSummary()
   }, [summaryStartDate, summaryEndDate])
 
-  const totalSale = priceSummaryByPaiementMethod.reduce((acc, sale) => acc + sale.price, 0)
+  const totalSale = sellPriceSummaryByPaiementMethod.reduce((acc, sale) => acc + sale.price, 0)
 
   return (
     <>
@@ -85,7 +87,14 @@ const Sales: NextPage = () => {
           </div>
         )}
         {articles.length > 0 && summaryArticles.length > 0 && (
-          <SalesSummary priceSummaryByPaiementMethod={priceSummaryByPaiementMethod} summaryArticles={summaryArticles} articles={articles} summaryStartDate={summaryStartDate} summaryEndDate={summaryEndDate} />
+          <SalesSummary
+            sellPriceSummaryByPaiementMethod={sellPriceSummaryByPaiementMethod}
+            buyingPriceSummaryByPaiementMethod={buyingPriceSummaryByPaiementMethod}
+            summaryArticles={summaryArticles}
+            articles={articles}
+            summaryStartDate={summaryStartDate}
+            summaryEndDate={summaryEndDate}
+          />
         )}
       </div>
     </>
@@ -93,14 +102,16 @@ const Sales: NextPage = () => {
 }
 
 type SalesSummaryProps = {
-  priceSummaryByPaiementMethod: GetSummaryResult['priceSummaryByPaiementMethod'];
+  sellPriceSummaryByPaiementMethod: GetSummaryResult['sellPriceSummaryByPaiementMethod'];
+  buyingPriceSummaryByPaiementMethod: GetSummaryResult['buyingPriceSummaryByPaiementMethod'];
   summaryArticles: number[];
   articles: IArticle[];
   summaryStartDate: string;
   summaryEndDate: string;
 }
-const SalesSummary = ({ priceSummaryByPaiementMethod, summaryArticles, articles, summaryStartDate, summaryEndDate }: SalesSummaryProps) => {
-  const totalSale = priceSummaryByPaiementMethod.reduce((acc, sale) => acc + sale.price, 0)
+const SalesSummary = ({ sellPriceSummaryByPaiementMethod, buyingPriceSummaryByPaiementMethod, summaryArticles, articles, summaryStartDate, summaryEndDate }: SalesSummaryProps) => {
+  const totalSale = sellPriceSummaryByPaiementMethod.reduce((acc, sale) => acc + sale.price, 0)
+  const totalBuying = buyingPriceSummaryByPaiementMethod.reduce((acc, sale) => acc + sale.price, 0)
 
   return <div className="my-4">
     {summaryStartDate && summaryEndDate && <>
@@ -124,12 +135,28 @@ const SalesSummary = ({ priceSummaryByPaiementMethod, summaryArticles, articles,
       <h3 className="my-2 text-2xl">Chiffre d&apos;affaire :</h3>
       <div className="flex justify-start">
         <div className="grid grid-cols-2">
-          {priceSummaryByPaiementMethod.map((sale, key) => <Fragment key={key}>
+          {sellPriceSummaryByPaiementMethod.map((sale, key) => <Fragment key={key}>
             <span>{paiementMethodsNames[sale.paiementMethod]} :</span>
             <span className="ml-2">{Round(sale.price)}€</span>
           </Fragment>)}
           <span className="text-xl">Total :</span>
           <span className="text-xl ml-2">{Round(totalSale)}€</span>
+        </div>
+      </div>
+      <h3 className="my-2 text-2xl">Bénéfices :</h3>
+      <div className="flex justify-start">
+        <div className="grid grid-cols-2">
+          {buyingPriceSummaryByPaiementMethod.map((sale, key) => {
+            const sellPrice = sellPriceSummaryByPaiementMethod.find(({ paiementMethod }) => paiementMethod === sale.paiementMethod)
+            if (!sellPrice)
+              return null
+            return <Fragment key={key}>
+              <span>{paiementMethodsNames[sale.paiementMethod]} :</span>
+              <span className="ml-2">{Round(sellPrice.price - sale.price)}€</span>
+            </Fragment>
+          })}
+          <span className="text-xl">Total :</span>
+          <span className="text-xl ml-2">{Round(totalSale - totalBuying)}€</span>
         </div>
       </div>
       {summaryArticles.length > 0 && <>
@@ -145,9 +172,7 @@ const SalesSummary = ({ priceSummaryByPaiementMethod, summaryArticles, articles,
 }
 
 function formatSaleArticles(saleArticlesId: number[], articles: IArticle[]): string[] {
-  console.log(saleArticlesId, articles)
   const saleArticlesMapped: IArticle[] = saleArticlesId.map((articleId) => articles.find((a) => a.id === articleId) as IArticle)
-  console.log(saleArticlesMapped)
   const cardById = articlesById(saleArticlesMapped)
   return cardById.sort((a, b) => b.quantity - a.quantity).map(({ quantity, article }) => `${quantity} ${article.name}`)
 }

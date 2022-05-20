@@ -30,6 +30,7 @@ model Sale {
     id              Int      @id @default(autoincrement())
     paiement_method String
     articles        Int[]
+    buying_price    Decimal  @default(0)
     sell_price      Decimal
     created_at      DateTime @default(now())
 }

@@ -11,7 +11,8 @@ export type GetSummaryBody = {
 }
 export type GetSummaryResult = {
   articles: IArticle[];
-  priceSummaryByPaiementMethod: { paiementMethod: PaiementMethod, price: number }[];
+  sellPriceSummaryByPaiementMethod: { paiementMethod: PaiementMethod, price: number }[];
+  buyingPriceSummaryByPaiementMethod: { paiementMethod: PaiementMethod, price: number }[];
   summaryArticles: number[];
 }
 
@@ -39,10 +40,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         lte: created_at,
       }
     }
-    // if (paiementMethod)
-    //   where.paiement_method = paiementMethod
 
-    const [articles, priceResume] = await Promise.all([
+    const [articles, sellPriceSummary, buyingPriceSummary] = await Promise.all([
       prisma.article.findMany(),
       prisma.sale.groupBy({
         by: ['paiement_method'],
@@ -50,15 +49,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         _sum: {
           sell_price: true,
         },
+      }),
+      prisma.sale.groupBy({
+        by: ['paiement_method'],
+        where,
+        _sum: {
+          buying_price: true,
+        },
       })
     ])
 
-    const priceSummaryByPaiementMethod = priceResume.map((item) => ({
+    const sellPriceSummaryByPaiementMethod = sellPriceSummary.map((item) => ({
       paiementMethod: item.paiement_method as PaiementMethod,
       price: item._sum.sell_price?.toNumber() ?? 0,
     }))
 
-    const salesCount = priceSummaryByPaiementMethod.reduce((acc, sale) => acc + 1, 0)
+    const salesCount = sellPriceSummaryByPaiementMethod.reduce((acc, sale) => acc + 1, 0)
     let summaryArticles: number[] = []
     if (salesCount > 0 && salesCount < 25) {
       const articlesResume = await prisma.sale.findMany({
@@ -70,13 +76,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       summaryArticles = articlesResume.map((item) => item.articles).flat()
     }
 
+    const buyingPriceSummaryByPaiementMethod = buyingPriceSummary.map((item) => ({
+      paiementMethod: item.paiement_method as PaiementMethod,
+      price: item._sum.buying_price?.toNumber() ?? 0,
+    }))
+
     prisma.$disconnect()
 
     res.status(200).json({
       ok: true,
       data: {
         articles: mapPrismaItems(articles),
-        priceSummaryByPaiementMethod,
+        sellPriceSummaryByPaiementMethod,
+        buyingPriceSummaryByPaiementMethod,
         summaryArticles,
       },
     })

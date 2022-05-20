@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client'
 import prisma from '../../prisma'
 import { mapPrismaItems } from '../../utils'
 import verifyJwt from '../../utils/verifyJwt'
@@ -58,7 +57,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         skip: page * limit,
         orderBy: [
           {
-            created_at: 'asc'
+            created_at: 'desc'
           },
         ],
         where,

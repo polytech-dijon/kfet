@@ -124,6 +124,9 @@ const Sales: NextPage = () => {
                     Prix de vente
                   </th>
                   <th scope="col" className="px-6 py-3 w-1/6">
+                    Prix d&apos;achat
+                  </th>
+                  <th scope="col" className="px-6 py-3 w-1/6">
                     Date de vente
                   </th>
                   <th scope="col" className="px-6 py-3 w-1/6">
@@ -142,6 +145,9 @@ const Sales: NextPage = () => {
                     </td>
                     <td className="px-6 py-4">
                       {Round(sale.sell_price)}€
+                    </td>
+                    <td className="px-6 py-4">
+                      {sale.buying_price ? Round(sale.buying_price) + '€' : 'Inconnu'}
                     </td>
                     <td className="px-6 py-4">
                       {new Date(sale.created_at).toLocaleString()}

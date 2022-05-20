@@ -24,4 +24,4 @@ type Replace<T, K extends keyof T, TReplace> = Identity<Pick<T, Exclude<keyof T,
 
 export type IArticle = Replace<Article, 'sell_price', number>
 export type IProduct = Replace<Product, 'buying_price', number>
-export type ISale = Replace<Sale, 'sell_price', number>
+export type ISale = Replace<Replace<Sale, 'sell_price', number>, 'buying_price', number>
