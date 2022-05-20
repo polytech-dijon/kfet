@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client'
 import prisma from '../../prisma'
 import { mapPrismaItems } from '../../utils'
 import verifyJwt from '../../utils/verifyJwt'

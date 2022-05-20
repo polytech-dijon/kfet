@@ -6,7 +6,8 @@ import type { ApiResponse } from '../../types/api'
 import type { IArticle, PaiementMethod } from '../../types/db'
 
 export type GetSummaryBody = {
-  date: string | null;
+  startDate: string | null;
+  endDate: string | null;
 }
 export type GetSummaryResult = {
   articles: IArticle[];
@@ -20,20 +21,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
   if (req.method === 'POST') {
 
-    const { date }: GetSummaryBody = req.body.data
-    if (typeof date !== 'string' && date !== null)
+    const { startDate, endDate }: GetSummaryBody = req.body.data
+    if ((typeof startDate !== 'string' && startDate !== null) && (typeof endDate !== 'string' && endDate !== null))
       return res.status(400).json({ ok: false, error: 'Invalid data' })
 
-    let where = {}
-    if (date) {
-      const created_at = new Date(date)
-      where = {
-        created_at: {
-          gte: created_at,
-          lt: new Date(created_at.getTime() + 86400000),
-        },
+    let where: any = {}
+    if (startDate) {
+      const created_at = new Date(startDate)
+      where.created_at = {
+        gte: created_at,
       }
     }
+    if (endDate) {
+      const created_at = new Date(endDate)
+      where.created_at = {
+        ...(where.created_at || {}),
+        lte: created_at,
+      }
+    }
+    // if (paiementMethod)
+    //   where.paiement_method = paiementMethod
 
     const [articles, priceResume] = await Promise.all([
       prisma.article.findMany(),
@@ -46,12 +53,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       })
     ])
 
-    const priceResumeByPaiementMethod = priceResume.map((item) => ({
+    const priceSummaryByPaiementMethod = priceResume.map((item) => ({
       paiementMethod: item.paiement_method as PaiementMethod,
       price: item._sum.sell_price?.toNumber() ?? 0,
     }))
+
+    const salesCount = priceSummaryByPaiementMethod.reduce((acc, sale) => acc + 1, 0)
     let summaryArticles: number[] = []
-    if (date) {
+    if (salesCount > 0 && salesCount < 25) {
       const articlesResume = await prisma.sale.findMany({
         where,
         select: {
@@ -67,7 +76,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       ok: true,
       data: {
         articles: mapPrismaItems(articles),
-        priceSummaryByPaiementMethod: priceResumeByPaiementMethod,
+        priceSummaryByPaiementMethod,
         summaryArticles,
       },
     })
