@@ -6,12 +6,13 @@ import { withAuthentication } from '../components/withAuthentication'
 import Select from '../components/Select'
 import api from '../services/api'
 import Modal from '../components/Modal'
-import { articlesById, Round } from '../utils'
+import { articlesById, downloadFile, Round } from '../utils'
 import { paiementMethods, paiementMethodsNames } from '../utils/db-enum'
 import type { NextPage } from 'next'
 import type { IArticle, ISale, PaiementMethod } from '../types/db'
 import type { ApiRequest } from '../types/api'
 import type { GetSalesBody, GetSalesResult, DeleteSalesResult, DeleteSalesBody } from './api/sales'
+import type { GetSalesExportBody, GetSalesExportResult } from './api/sales/export'
 
 const Sales: NextPage = () => {
   const [sales, setSales] = useState<ISale[]>([])
@@ -58,6 +59,22 @@ const Sales: NextPage = () => {
     }
   }
 
+  async function exportSales() {
+    try {
+      const { data } = await api.post<GetSalesExportResult, ApiRequest<GetSalesExportBody>>('/api/sales/export', {
+        data: {
+          startDate: salesStartDate || null,
+          endDate: salesEndDate || null,
+          paiementMethod: salesPaiementMethod,
+        }
+      })
+      downloadFile(`ventes.csv`, data)
+    }
+    catch {
+      toast.error('Une erreur est survenue')
+    }
+  }
+
   useEffect(() => {
     getSales()
   }, [salesPage, salesStartDate, salesEndDate, salesPaiementMethod])
@@ -72,8 +89,9 @@ const Sales: NextPage = () => {
         <meta name="description" content="Ventes de la MEGA KFET" />
       </Head>
       <div className="grow container flex flex-col py-4">
-        <div className="flex justify-between items-center">
-          <h1 className="text-4xl text-center mt-8">Détails des ventes</h1>
+        <div className="flex justify-between items-center mt-8">
+          <h1 className="text-4xl text-center">Détails des ventes</h1>
+          <button className="button" onClick={() => exportSales()}>Exporter</button>
         </div>
         <div className="shadow-md sm:rounded-lg w-full mt-6 mb-8 p-4 bg-white">
           <h3 className="text-xl">Filtres :</h3>

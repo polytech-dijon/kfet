@@ -1,9 +1,9 @@
-import prisma from '../../prisma'
-import { mapPrismaItems } from '../../utils'
-import verifyJwt from '../../utils/verifyJwt'
+import prisma from '../../../prisma'
+import { mapPrismaItems } from '../../../utils'
+import verifyJwt from '../../../utils/verifyJwt'
 import type { NextApiRequest, NextApiResponse } from 'next'
-import type { ApiResponse } from '../../types/api'
-import type { IArticle, ISale, PaiementMethod } from '../../types/db'
+import type { ApiResponse } from '../../../types/api'
+import type { IArticle, ISale, PaiementMethod } from '../../../types/db'
 
 export type GetSalesBody = {
   page: number;
