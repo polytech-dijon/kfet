@@ -8,7 +8,7 @@ import type { IArticle, PaiementMethod } from '../../types/db'
 export type PostCheckoutBody = {
   card: IArticle[];
   paiementMethod: PaiementMethod;
-  priceAdjustment: number;
+  priceAdjustment: number | null;
 }
 export type PostCheckoutResult = {}
 
@@ -17,12 +17,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     return
 
   const { card, paiementMethod, priceAdjustment }: PostCheckoutBody = req.body.data
-  if (!card || !paiementMethod || typeof priceAdjustment !== 'number')
+  if (!card || !paiementMethod || (typeof priceAdjustment !== 'number' && priceAdjustment !== null))
     return res.status(400).json({ ok: false, error: 'Invalid data' })
 
   const originalProducts = await prisma.product.findMany({})
 
-  const sellPrice = new Prisma.Decimal(card.map((item: IArticle) => item.sell_price).reduce((a, b) => a + b) + priceAdjustment)
+  const sellPrice = priceAdjustment !== null ? new Prisma.Decimal(priceAdjustment) : new Prisma.Decimal(card.map((item: IArticle) => item.sell_price).reduce((a, b) => a + b))
   const buyingPrice = new Prisma.Decimal(
     card.map((item: IArticle) => {
       return item.products.map((productId) => {

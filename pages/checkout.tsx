@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Head from 'next/head'
 import toast from 'react-hot-toast'
 import { RiAddLine, RiSubtractLine, RiArrowGoBackFill, RiCloseLine } from 'react-icons/ri'
@@ -21,7 +21,7 @@ interface CheckoutProps {
 const Checkout: NextPage<CheckoutProps> = ({ articles, products }) => {
   const [categoryOpen, setCategoryOpen] = useState<Category | null>(null)
   const [card, setCard] = useState<IArticle[]>([])
-  const [priceAdjustment, setPriceAdjustment] = useState<number>(0)
+  const [priceAdjustment, setPriceAdjustment] = useState<number | null>(null)
 
   function addArticle(article: IArticle) {
     setCard(card.concat(article))
@@ -43,7 +43,7 @@ const Checkout: NextPage<CheckoutProps> = ({ articles, products }) => {
       })
   
       setCard([])
-      setPriceAdjustment(0)
+      setPriceAdjustment(null)
       toast.success('Panier envoyé !')
     }
     catch {
@@ -96,6 +96,7 @@ const ArticleList = ({ articles, category, setCategoryOpen, addArticle }: Articl
         <div className="grid grid-cols-4 gap-4 p-4">
           {articles
             .filter((article) => article.category === category && !article.deleted)
+            .sort((a, b) => a.name.localeCompare(b.name))
             .map((article, key2) => (
               <div key={key2} className="p-6 card cursor-pointer text-2xl flex justify-center items-center h-32 select-none text-center" onClick={() => addArticle(article)}>
                 <h3 className="text-center">{article.name}</h3>
@@ -118,14 +119,14 @@ type CardOverviewProps = {
   card: IArticle[];
   setCard: (card: IArticle[]) => void;
   submitCard: (paiementMethod: PaiementMethod) => void;
-  priceAdjustment: number;
-  setPriceAdjustment: (price: number) => void;
+  priceAdjustment: number | null;
+  setPriceAdjustment: (price: number | null) => void;
 }
 const CardOverview = ({ card, setCard, submitCard, priceAdjustment, setPriceAdjustment }: CardOverviewProps) => {
   const [selectedPaimentMethod, setSelectPaimentMethod] = useState<PaiementMethod>(PaiementMethod.CASH)
   const [priceAdjustmentOpen, setPriceAdjustmentOpen] = useState<boolean>(false)
 
-  const total = Round(card.reduce((acc, article) => acc + article.sell_price, 0) + priceAdjustment, 2)
+  const total = priceAdjustment !== null ? priceAdjustment : Round(card.reduce((acc, article) => acc + article.sell_price, 0), 2)
 
   const cardById = useMemo(() => articlesById(card), [card])
 
@@ -146,7 +147,7 @@ const CardOverview = ({ card, setCard, submitCard, priceAdjustment, setPriceAdju
   return <div className="right-0 w-96 bg-white flex flex-col justify-between">
     <h2 className="text-center text-3xl mt-4">Panier :</h2>
     <div className="flex flex-col p-4">
-      {cardById.length === 0 && priceAdjustment === 0 && <div className="text-center text-xl">Aucun article</div>}
+      {cardById.length === 0 && priceAdjustment === null && <div className="text-center text-xl">Aucun article</div>}
       {cardById.map(({ quantity, article }, key) => (
         <div key={key} className="flex justify-between text-xl">
           <span>{article.name}</span>
@@ -157,11 +158,11 @@ const CardOverview = ({ card, setCard, submitCard, priceAdjustment, setPriceAdju
           </div>
         </div>
       ))}
-      {priceAdjustment !== 0 && (
+      {priceAdjustment !== null && (
         <div className="flex justify-between text-xl">
           <span className="italic">Ajustement du prix</span>
           <div className="flex justify-center items-center text-2xl">
-            <button onClick={() => setPriceAdjustment(0)}><RiCloseLine /></button>
+            <button onClick={() => setPriceAdjustment(null)}><RiCloseLine /></button>
           </div>
         </div>
       )}
@@ -170,7 +171,7 @@ const CardOverview = ({ card, setCard, submitCard, priceAdjustment, setPriceAdju
           className="text-red-600 underline"
           onClick={() => {
             setCard([])
-            setPriceAdjustment(0)
+            setPriceAdjustment(null)
           }}
         >
           Supprimer les articles
@@ -193,31 +194,56 @@ const CardOverview = ({ card, setCard, submitCard, priceAdjustment, setPriceAdju
         <button className="button bg-green-700 w-full text-2xl" onClick={() => submitCard(selectedPaimentMethod)}>Valider</button>
       </div>
     </div>
-    <PriceAdjustmentModal priceAdjustmentOpen={priceAdjustmentOpen} setPriceAdjustmentOpen={setPriceAdjustmentOpen} ajustPrice={setPriceAdjustment} />
+    <PriceAdjustmentModal
+      priceAdjustmentOpen={priceAdjustmentOpen}
+      setPriceAdjustmentOpen={setPriceAdjustmentOpen}
+      priceAdjustment={priceAdjustment}
+      ajustPrice={setPriceAdjustment}
+      card={card}
+    />
   </div>
 }
 
 type PriceAdjustmentModalProps = {
   priceAdjustmentOpen: boolean;
   setPriceAdjustmentOpen: (open: boolean) => void;
+  priceAdjustment: number | null;
   ajustPrice: (price: number) => void;
+  card: IArticle[];
 }
-function PriceAdjustmentModal({ priceAdjustmentOpen, setPriceAdjustmentOpen, ajustPrice }: PriceAdjustmentModalProps) {
-  const [price, setPrice] = useState(0)
+function PriceAdjustmentModal({ priceAdjustmentOpen, setPriceAdjustmentOpen, priceAdjustment, ajustPrice, card }: PriceAdjustmentModalProps) {
+  const [price, setPrice] = useState(card.reduce((acc, article) => acc + article.sell_price, 0))
+
+  useEffect(() => {
+    if (priceAdjustmentOpen)
+      setPrice(priceAdjustment !== null ? priceAdjustment : card.reduce((acc, article) => acc + article.sell_price, 0))
+  }, [priceAdjustmentOpen])
+
+  async function handleSubmit() {
+    ajustPrice(price)
+    setPriceAdjustmentOpen(false)
+  }
 
   return <Modal
     isOpen={priceAdjustmentOpen}
-    onSubmit={async () => {
-      ajustPrice(price)
-      setPriceAdjustmentOpen(false)
-    }}
+    onSubmit={handleSubmit}
     onCancel={() => setPriceAdjustmentOpen(false)}
     title="Ajuster le prix"
     submitButtonText="Ajuster"
   >
     <div className="my-3">
       <label htmlFor="priceAdjustment" className="block mb-2 text-sm font-medium text-gray-900">Ajustement du prix (en €) :</label>
-      <input type="number" id="priceAdjustment" value={price} onChange={(e) => setPrice(parseFloat(e.target.value))} step={0.05} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required />
+      <input
+        type="number"
+        id="priceAdjustment"
+        value={price}
+        onChange={(e) => setPrice(parseFloat(e.target.value))}
+        step={0.05}
+        min={0}
+        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+        required
+        onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
+      />
     </div>
   </Modal>
 }

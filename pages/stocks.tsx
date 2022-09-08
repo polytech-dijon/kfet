@@ -5,14 +5,17 @@ import { RiAddLine, RiDeleteBinFill, RiEditFill } from 'react-icons/ri'
 import { withAuthentication } from '../components/withAuthentication'
 import api from '../services/api'
 import Modal from '../components/Modal'
+import Select from '../components/Select'
 import { Round } from '../utils'
+import { categories, categoryNames } from '../utils/db-enum'
 import type { NextPage } from 'next'
-import type { IProduct } from '../types/db'
+import type { Category, IProduct } from '../types/db'
 import type { ApiRequest } from '../types/api'
 import type { DeleteStocksBody, DeleteStocksResult, GetStocksResult, PostStocksBody, PostStocksResult, PutStocksBody, PutStocksResult } from './api/stocks'
 
 const Stocks: NextPage = () => {
   const [products, setProducts] = useState<IProduct[]>([])
+  const [productNameFilter, setProductNameFilter] = useState('')
   const [editingProduct, setEditingProduct] = useState<IProduct | null>(null)
   const [deletingProduct, setDeletingProduct] = useState<IProduct | null>(null)
   const [createProductOpen, setCreateModalOpen] = useState(false)
@@ -79,6 +82,8 @@ const Stocks: NextPage = () => {
     getStocks()
   }, [])
 
+  const filteredProducts = productNameFilter.length > 0 ? products.filter(product => product.name.toLowerCase().includes(productNameFilter.toLowerCase())) : products
+
   return (
     <>
       <Head>
@@ -93,7 +98,19 @@ const Stocks: NextPage = () => {
             Nouveau produit
           </button>
         </div>
-        {products.length > 0 && (
+        <div className="shadow-md sm:rounded-lg w-full mt-6 mb-8 p-4 bg-white">
+          <h3 className="text-xl">Filtres :</h3>
+          <div className="mt-2 flex items-center">
+            <span className="mr-1.5">Nom du produit :</span>
+            <input
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1.5"
+              type="text"
+              value={productNameFilter}
+              onChange={e => setProductNameFilter(e.target.value)}
+            />
+          </div>
+        </div>
+        {filteredProducts.length > 0 && (
           <div className="flex flex-col items-center">
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg w-full">
               <table className="w-full text-sm text-left text-gray-500">
@@ -114,7 +131,7 @@ const Stocks: NextPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((product, key) => (
+                  {filteredProducts.map((product, key) => (
                     <tr key={key} className="odd:bg-white even:bg-gray-50">
                       <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                         {product.name}
