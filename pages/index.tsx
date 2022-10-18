@@ -37,6 +37,11 @@ const Home: NextPage = () => {
               Gestion des articles
             </a>
           </Link>
+          <Link href="/commands">
+            <a className="p-8 card text-xl uppercase w-full text-center font-semibold">
+              Gestion des commandes
+            </a>
+          </Link>
         </div>
       </div>
     </>

@@ -5,7 +5,7 @@ const Page404: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Page introuvable - BDE MEGA</title>
+        <title>Page introuvable - MEGA KFET</title>
         <meta name="description" content="Cette page n'existe pas." />
       </Head>
       <div className="container grow flex flex-col justify-center items-center">

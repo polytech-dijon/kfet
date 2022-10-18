@@ -1,4 +1,4 @@
-import { Category, PaiementMethod } from '../types/db'
+import { Category, PaiementMethod, CommandStatus } from '../types/db'
 
 export const categories: Category[] = [
   Category.HOT_DRINKS,
@@ -26,3 +26,14 @@ export const paiementMethodsNames: { [key: string]: string } = {
   LYDIA: 'Lydia',
 }
 
+export const commandStatus: CommandStatus[] = [
+  CommandStatus.PENDING,
+  CommandStatus.IN_PROGRESS,
+  CommandStatus.DONE,
+]
+
+export const commandStatusNames: { [key: string]: string } = {
+  PENDING: 'En attente',
+  IN_PROGRESS: 'En cours',
+  DONE: 'Terminée',
+}

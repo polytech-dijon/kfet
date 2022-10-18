@@ -13,9 +13,16 @@ export enum Category {
   SALTY = 'SALTY',
 }
 
+export enum CommandStatus {
+  PENDING = 'PENDING',
+  IN_PROGRESS = 'IN_PROGRESS',
+  DONE = 'DONE',
+}
+
 export type Article = Prisma.ArticleGetPayload<{}>
 export type Product = Prisma.ProductGetPayload<{}>
 export type Sale = Prisma.SaleGetPayload<{}>
+export type Command = Prisma.CommandGetPayload<{}>
 
 type Identity<T> = { [P in keyof T]: T[P] }
 type Replace<T, K extends keyof T, TReplace> = Identity<Pick<T, Exclude<keyof T, K>> & {

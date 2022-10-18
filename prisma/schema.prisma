@@ -34,3 +34,12 @@ model Sale {
     sell_price      Decimal
     created_at      DateTime @default(now())
 }
+
+model Command {
+    id              Int      @id @default(autoincrement())
+    title           String
+    description     String?
+    status          String
+    estimated_end   DateTime?
+    created_at      DateTime @default(now())
+}
