@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import NextLink from 'next/link'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../redux/actions'
 import api from '../services/api'
+import type { RootState } from '../redux/store'
 
 export interface NavbarLink {
   text: string;
@@ -45,13 +46,16 @@ export const links: NavbarLink[] = [
 const NavBar = () => {
   const router = useRouter()
   const dispatch = useDispatch()
-  const [open, setOpen] = useState(false)
+
+  const navbarVisibility: boolean = useSelector((state: RootState) => state.navbarVisibility)
 
   async function clickLogout() {
     dispatch(logout())
     api.setToken(null)
     router.push('/')
   }
+
+  if (!navbarVisibility && router.pathname === "/commands") return null
 
   return <>
     <div className="bg-background-light dark:bg-background-dark h-16 py-1">
@@ -75,10 +79,7 @@ const NavBar = () => {
         <div>
           <button
             className="mr-4 button-outline"
-            onClick={() => {
-              clickLogout()
-              setOpen(false)
-            }}
+            onClick={() => clickLogout()}
           >
             Déconnexion
           </button>

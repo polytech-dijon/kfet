@@ -25,9 +25,6 @@ export type PostCommandResult = {}
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse<GetCommandResult | PutCommandResult>>) {
   if (req.method === 'GET') {
 
-    if (!verifyJwt({ req, res }))
-      return
-
     const commands = await prisma.command.findMany({
       orderBy: [
         {
