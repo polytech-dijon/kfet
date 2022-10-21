@@ -142,9 +142,12 @@ const CommandsList = ({ commands }: CommandsList) => {
   return <>
     <h1 className="text-4xl font-semibold mb-3"><span className="text-primary-light">MEGA</span> KFET</h1>
     <h2 className="text-3xl font-semibold mb-6">Liste des commandes</h2>
-    <div className="w-96 flex flex-col divide-y">
+    <div className="divide-y grid grid-rows-6 grid-flow-col gap-x-8">
+      {commands.length === 0 && (
+        <p className="text-center text-gray-500">Aucune commande pour le moment...</p>
+      )}
       {commands.map((command) => (
-        <div key={command.id} className="flex flex-row justify-between items-center border-gray-300 mt-5 pt-4">
+        <div key={command.id} className="flex flex-row gap-6 justify-between items-center border-gray-300 mt-5 pt-4 min-w-[16rem]">
           <div className="flex flex-col">
             <span className="text-xl font-semibold">{command.title}</span>
             <span className="text-sm">{command.description}</span>
