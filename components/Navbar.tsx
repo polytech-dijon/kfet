@@ -47,15 +47,11 @@ const NavBar = () => {
   const router = useRouter()
   const dispatch = useDispatch()
 
-  const navbarVisibility: boolean = useSelector((state: RootState) => state.navbarVisibility)
-
   async function clickLogout() {
     dispatch(logout())
     api.setToken(null)
     router.push('/')
   }
-
-  if (!navbarVisibility && router.pathname === "/commands") return null
 
   return <>
     <div className="bg-background-light dark:bg-background-dark h-16 py-1">

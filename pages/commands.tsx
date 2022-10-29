@@ -1,30 +1,26 @@
 import { useEffect, useState } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
-import { useDispatch, useSelector } from 'react-redux'
+import Image from 'next/image'
+import { useSelector } from 'react-redux'
 import toast from 'react-hot-toast'
 import { RiAddLine, RiDeleteBinFill, RiEditFill, RiCheckboxCircleLine, RiTimeLine, RiFileListLine } from 'react-icons/ri'
 import api from '../services/api'
-import { setNavbarVisibility } from '../redux/actions'
 import Modal from '../components/Modal'
 import Select from '../components/Select'
 import { commandStatus, commandStatusNames } from '../utils/db-enum'
-import { CommandStatus } from '../types/db'
+import { CommandStatus, IArticle } from '../types/db'
 import type { NextPage } from 'next'
 import type { Command } from '../types/db'
 import type { ApiRequest } from '../types/api'
 import type { RootState } from '../redux/store'
 import type { DeleteCommandBody, DeleteCommandResult, GetCommandResult, PostCommandBody, PostCommandResult, PutCommandBody, PutCommandResult } from './api/commands'
+import type { GetArticlesResult } from './api/articles'
 
 const Commands: NextPage = () => {
-  const dispatch = useDispatch()
   const accessToken: string | null = useSelector((state: RootState) => state.accessToken)
   const [commands, setCommands] = useState<Command[] | null>(null)
   const [commandsListOpen, setCommandsListOpen] = useState(false)
-
-  useEffect(() => {
-    dispatch(setNavbarVisibility(!commandsListOpen))
-  }, [commandsListOpen])
 
   async function getCommand() {
     try {
@@ -86,6 +82,10 @@ const Commands: NextPage = () => {
 
   useEffect(() => {
     getCommand()
+    const interval = setInterval(() => {
+      getCommand()
+    }, 5000)
+    return () => clearInterval(interval)
   }, [])
 
   return (
@@ -105,8 +105,9 @@ const Commands: NextPage = () => {
               Ouvrir la liste des commandes
             </button>
           </>}
-          {commandsListOpen && <>
-            <div className="fixed top-2 right-0">
+          {commandsListOpen && <div className="fixed top-0 left-0 right-0 w-screen h-screen bg-background-light grow flex flex-col justify-center items-center z-30">
+            <CommandsList commands={commands} />
+            <div className="fixed bottom-2 right-0">
               <button
                 className="mr-4 button-outline"
                 onClick={() => setCommandsListOpen(false)}
@@ -114,19 +115,18 @@ const Commands: NextPage = () => {
                 Retour
               </button>
             </div>
-            <CommandsList commands={commands} />
-          </>}
+          </div>}
         </>}
-        {!accessToken && <>
-          <div className="fixed top-2 right-0">
+        {!accessToken && <div className="fixed top-0 left-0 right-0 w-screen h-screen bg-background-light grow flex flex-col justify-center items-center z-30">
+          <CommandsList commands={commands} />
+          <div className="fixed bottom-2 right-0">
             <Link href="/login">
               <a className="mr-4 button-outline">
                 Connexion
               </a>
             </Link>
           </div>
-          <CommandsList commands={commands} />
-        </>}
+        </div>}
       </div>
     </>
   )
@@ -139,13 +139,50 @@ const CommandsList = ({ commands }: CommandsList) => {
   if (!commands)
     return <p>Chargement...</p>
 
-  return <>
-    <h1 className="text-4xl font-semibold mb-3"><span className="text-primary-light">MEGA</span> KFET</h1>
-    <h2 className="text-3xl font-semibold mb-6">Liste des commandes</h2>
-    <div className="divide-y grid grid-rows-6 grid-flow-col gap-x-8">
-      {commands.length === 0 && (
-        <p className="text-center text-gray-500">Aucune commande pour le moment...</p>
-      )}
+  const Item = ({ command }: { command: Command }) => (
+    <div className="flex flex-row gap-y-4 justify-between items-center border-gray-300 mt-5 pt-4">
+      <div className="flex flex-col">
+        <span className="text-5xl font-semibold">{command.title}</span>
+        <span className="text-4xl">{command.description}</span>
+      </div>
+      {command.status === CommandStatus.IN_PROGRESS && <RiTimeLine className="text-5xl" />}
+      {command.status === CommandStatus.DONE && <RiCheckboxCircleLine className="text-5xl" />}
+    </div>
+  )
+
+  return <div className="flex-1 w-full h-full grid grid-cols-2 grid-flow-row relative">
+    {/* <h1 className="text-4xl font-semibold mb-3"><span className="text-primary-light">MEGA</span> KFET</h1>
+    <h2 className="text-3xl font-semibold mb-6">Liste des commandes</h2> */}
+    <div className="border-r-4 border-black flex flex-col">
+      <div className="bg-orange-400 h-40 text-6xl text-white text-center flex justify-center items-center font-bold">
+        <span>Commandes en préparation</span>
+      </div>
+      <div className="flex-1 flex flex-col items-center">
+        <div className="grid grid-rows-6 grid-flow-col gap-x-16">
+          {commands
+            .filter((command) => command.status === CommandStatus.IN_PROGRESS)
+            .map((command) => <Item key={command.id} command={command} />)
+          }
+        </div>
+      </div>
+    </div>
+    <div>
+      <div className="bg-green-700 h-40 text-6xl text-white text-center flex justify-center items-center font-bold">
+        <span>Commandes prêtes</span>
+      </div>
+      <div className="flex-1 flex flex-col items-center">
+        <div className="grid grid-rows-6 grid-flow-col gap-x-16">
+          {commands
+            .filter((command) => command.status === CommandStatus.DONE)
+            .map((command) => <Item key={command.id} command={command} />)
+          }
+        </div>
+      </div>
+    </div>
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-white rounded-full">
+      <Image src="/kfet-king.svg" width={192} height={192} alt="" />
+    </div>
+    {/* <div className="flex-1 w-full h-full grid grid-cols-2 grid-flow-row">
       {commands.map((command) => (
         <div key={command.id} className="flex flex-row gap-6 justify-between items-center border-gray-300 mt-5 pt-4 min-w-[16rem]">
           <div className="flex flex-col">
@@ -160,8 +197,8 @@ const CommandsList = ({ commands }: CommandsList) => {
           </div>
         </div>
       ))}
-    </div>
-  </>
+    </div> */}
+  </div>
 }
 
 type CommandsPanelProps = {
@@ -171,10 +208,25 @@ type CommandsPanelProps = {
   createCommand: (command: Partial<Command>) => Promise<void>;
 }
 const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCommand }: CommandsPanelProps) => {
+  const [articles, setArticles] = useState<IArticle[] | null>(null)
   const [isNewCommandOpen, setIsNewCommandOpen] = useState(false)
   const [editingCommand, setEditingCommand] = useState<Command | null>(null)
 
-  if (!commands) {
+  async function getArticles() {
+    try {
+      const { data } = await api.get<GetArticlesResult>('/api/articles')
+      setArticles(data.articles)
+    }
+    catch {
+      toast.error('Une erreur est survenue')
+    }
+  }
+
+  useEffect(() => {
+    getArticles()
+  }, [])
+
+  if (!commands || !articles) {
     return <>
       <h1 className="text-4xl font-semibold">Gestion des commandes</h1>
       <p>Chargement...</p>
@@ -188,7 +240,7 @@ const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCommand }
         <RiAddLine />
         <span>Nouvelle commande</span>
       </button>
-      <EditCommandModal isOpen={isNewCommandOpen} onClose={() => setIsNewCommandOpen(false)} onSubmit={createCommand} />
+      <EditCommandModal isOpen={isNewCommandOpen} onClose={() => setIsNewCommandOpen(false)} onSubmit={createCommand} articles={articles} />
     </div>
     <div>
       {commands.length === 0 && (
@@ -236,7 +288,7 @@ const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCommand }
                   <td className="px-6 py-1 flex gap-1.5">
                     <button className="button" onClick={() => setEditingCommand(command)}>
                       <RiEditFill size={20} />
-                      <EditCommandModal isOpen={editingCommand?.id === command.id} command={editingCommand || {}} onClose={() => setEditingCommand(null)} onSubmit={(c) => updateCommand(c as Command)} />
+                      <EditCommandModal isOpen={editingCommand?.id === command.id} command={editingCommand || {}} onClose={() => setEditingCommand(null)} onSubmit={(c) => updateCommand(c as Command)} articles={articles} />
                     </button>
                     <button className="button red" onClick={() => deleteCommand(command)}>
                       <RiDeleteBinFill size={20} />
@@ -256,11 +308,13 @@ type EditCommandModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (command: Partial<Command>) => Promise<void>;
+  articles: IArticle[];
   command?: Partial<Command>;
 }
-const EditCommandModal = ({ isOpen, onClose, onSubmit, command }: EditCommandModalProps) => {
+const EditCommandModal = ({ isOpen, onClose, onSubmit, articles, command }: EditCommandModalProps) => {
   const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
+  const [article, setArticle] = useState<IArticle | null>(null)
+  // const [description, setDescription] = useState('')
   const [status, setStatus] = useState<CommandStatus>(CommandStatus.PENDING)
   // const [estimatedEnd, setEstimatedEnd] = useState<string | null>(null)
 
@@ -268,7 +322,8 @@ const EditCommandModal = ({ isOpen, onClose, onSubmit, command }: EditCommandMod
     if (!command)
       return
     setTitle(command.title || '')
-    setDescription(command.description || '')
+    setArticle(articles.find((a) => a.name === command.description) || null)
+    // setDescription(command.description || '')
     setStatus(command.status as CommandStatus || CommandStatus.PENDING)
   }, [command])
 
@@ -279,10 +334,11 @@ const EditCommandModal = ({ isOpen, onClose, onSubmit, command }: EditCommandMod
         onSubmit={async () => {
           if (!title)
             return toast.error('Nom de commande requis !')
-          await onSubmit({ ...command, title, description, status, estimated_end: null })
+          await onSubmit({ ...command, title, description: article ? article.name : '', status, estimated_end: null })
           if (!command) {
             setTitle('')
-            setDescription('')
+            setArticle(null)
+            // setDescription('')
             setStatus(CommandStatus.PENDING)
           }
           onClose()
@@ -297,7 +353,14 @@ const EditCommandModal = ({ isOpen, onClose, onSubmit, command }: EditCommandMod
         </div>
         <div className="my-3">
           <label htmlFor="commandDescription" className="block mb-2 text-sm font-medium text-gray-900">Description (optionnel) :</label>
-          <textarea id="commandDescription" value={description} onChange={(e) => setDescription(e.target.value)} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+          {/* <textarea id="commandDescription" value={description} onChange={(e) => setDescription(e.target.value)} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" /> */}
+          <Select
+            value={article}
+            setValue={setArticle}
+            values={articles}
+            accessor={(a) => a?.name || "Nom de l'article..."}
+            className="w-72"
+          />
         </div>
         <div className="my-3">
           <label htmlFor="commandStatus" className="block mb-2 text-sm font-medium text-gray-900">Statut de la commande :</label>
