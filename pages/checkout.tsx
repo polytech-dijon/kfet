@@ -54,7 +54,7 @@ const Checkout: NextPage<CheckoutProps> = ({ articles, products }) => {
   return (
     <>
       <Head>
-        <title>MEGA KFET</title>
+        <title>KFET KING</title>
         <meta name="description" content="Gestion de la caisse" />
       </Head>
       <div className="grow flex items-stretch">

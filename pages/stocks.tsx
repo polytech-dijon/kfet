@@ -87,8 +87,8 @@ const Stocks: NextPage = () => {
   return (
     <>
       <Head>
-        <title>MEGA KFET - Stocks</title>
-        <meta name="description" content="Gestion des stocks de la MEGA KFET" />
+        <title>KFET KING - Stocks</title>
+        <meta name="description" content="Gestion des stocks de la KFET" />
       </Head>
       <div className="grow container flex flex-col py-4">
         <div className="flex justify-between items-center">

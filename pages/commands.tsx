@@ -91,7 +91,7 @@ const Commands: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Commandes - MEGA KFET</title>
+        <title>Commandes - KFET KING</title>
         <meta name="description" content="Cette page n'existe pas." />
       </Head>
       <div className="container grow flex flex-col justify-center items-center">
@@ -151,8 +151,6 @@ const CommandsList = ({ commands }: CommandsList) => {
   )
 
   return <div className="flex-1 w-full h-full grid grid-cols-2 grid-flow-row relative">
-    {/* <h1 className="text-4xl font-semibold mb-3"><span className="text-primary-light">MEGA</span> KFET</h1>
-    <h2 className="text-3xl font-semibold mb-6">Liste des commandes</h2> */}
     <div className="border-r-4 border-black flex flex-col">
       <div className="bg-orange-400 h-40 text-6xl text-white text-center flex justify-center items-center font-bold">
         <span>Commandes en préparation</span>

@@ -87,8 +87,8 @@ const Articles: NextPage = () => {
   return (
     <>
       <Head>
-        <title>MEGA KFET - Articles</title>
-        <meta name="description" content="Gestion des articles de la MEGA KFET" />
+        <title>KFET KING - Articles</title>
+        <meta name="description" content="Gestion des articles de la KFET" />
       </Head>
       <div className="grow container flex flex-col py-4">
         <div className="flex justify-between items-center">

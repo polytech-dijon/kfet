@@ -1,10 +1,9 @@
-import { useState } from 'react'
 import { useRouter } from 'next/router'
 import NextLink from 'next/link'
-import { useDispatch, useSelector } from 'react-redux'
+import Image from 'next/image'
+import { useDispatch } from 'react-redux'
 import { logout } from '../redux/actions'
 import api from '../services/api'
-import type { RootState } from '../redux/store'
 
 export interface NavbarLink {
   text: string;
@@ -59,9 +58,7 @@ const NavBar = () => {
         <div>
           <NextLink href="/">
             <a className="flex items-center">
-              <h1 className="text-2xl font-semibold">
-                <span className="text-primary-light dark:text-primary-dark">MEGA</span> <span>KFET</span>
-              </h1>
+              <Image src="/kfet-king.svg" alt="Logo" width={48} height={48} />
             </a>
           </NextLink>
         </div>

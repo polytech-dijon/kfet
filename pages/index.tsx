@@ -7,7 +7,7 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>MEGA KFET</title>
+        <title>KFET KING</title>
         <meta name="description" content="Site de la KFET de l'ESIREM" />
       </Head>
       <div className="container grow flex flex-col justify-center items-center">

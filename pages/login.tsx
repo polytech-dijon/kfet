@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/router'
 import toast from 'react-hot-toast'
 import { useDispatch } from 'react-redux'
@@ -33,12 +34,14 @@ const Login: NextPage = () => {
   return (
     <>
       <Head>
-        <title>MEGA KFET - Connexion</title>
-        <meta name="description" content="Connexion à la MEGA KFET" />
+        <title>KFET KING - Connexion</title>
+        <meta name="description" content="Connexion à la KFET" />
       </Head>
       <div className="container grow flex flex-col justify-center items-center">
         <div>
-          <h1 className="text-4xl font-semibold text-center">MEGA KFET</h1>
+          <div className="flex justify-center">
+            <Image src="/kfet-king.svg" alt="Logo" width={256} height={256} />
+          </div>
           <div className="mt-4 mb-16 flex justify-center">
             <Link href="/commands">
               <a className="mt-2 button-outline">

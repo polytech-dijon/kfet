@@ -5,7 +5,7 @@ const Page500: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Erreur - MEGA KFET</title>
+        <title>Erreur - KFET KING</title>
         <meta name="description" content="Une erreur s'est produite lors du chargement de cette page." />
       </Head>
       <div className="container grow flex flex-col justify-center items-center">

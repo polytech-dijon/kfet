@@ -85,8 +85,8 @@ const Sales: NextPage = () => {
   return (
     <>
       <Head>
-        <title>MEGA KFET</title>
-        <meta name="description" content="Ventes de la MEGA KFET" />
+        <title>KFET KING</title>
+        <meta name="description" content="Ventes de la KFET" />
       </Head>
       <div className="grow container flex flex-col py-4">
         <div className="flex justify-between items-center mt-8">
