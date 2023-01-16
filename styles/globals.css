@@ -51,7 +51,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .button-outline {
-    @apply flex justify-center items-center text-primary-light dark:text-primary-dark border border-gray-300 dark:border-gray-800 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-800 px-3 py-2.5 font-medium transition-all;
+    @apply flex justify-center items-center text-primary-light dark:text-primary-dark border border-gray-300 dark:border-gray-800 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-800 px-3 py-2.5 font-medium transition-all disabled:opacity-70 disabled:hover:bg-transparent;
   }
 
   .card {

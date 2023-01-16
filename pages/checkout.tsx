@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Head from 'next/head'
 import toast from 'react-hot-toast'
-import { RiAddLine, RiSubtractLine, RiArrowGoBackFill, RiCloseLine } from 'react-icons/ri'
+import { RiAddLine, RiSubtractLine, RiArrowGoBackFill, RiCloseLine, RiCheckLine } from 'react-icons/ri'
 import { withAuthentication } from '../components/withAuthentication'
 import Modal from '../components/Modal'
 import prisma from '../prisma'
@@ -125,6 +125,7 @@ type CardOverviewProps = {
 const CardOverview = ({ card, setCard, submitCard, priceAdjustment, setPriceAdjustment }: CardOverviewProps) => {
   const [selectedPaimentMethod, setSelectPaimentMethod] = useState<PaiementMethod>(PaiementMethod.CASH)
   const [priceAdjustmentOpen, setPriceAdjustmentOpen] = useState<boolean>(false)
+  const [esipayEnabled, setEsipayEnabled] = useState<boolean>(false)
 
   const total = priceAdjustment !== null ? priceAdjustment : Round(card.reduce((acc, article) => acc + article.sell_price, 0), 2)
 
@@ -185,9 +186,26 @@ const CardOverview = ({ card, setCard, submitCard, priceAdjustment, setPriceAdju
         </div>
         <h4 className="text-2xl text-right">Total : {total}€</h4>
       </div>
-      <div className="mt-4 grid grid-cols-3 gap-4">
+      <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
         {paiementMethods.map((paiementMethod, key) => (
-          <button key={key} className={`text-xl ${selectedPaimentMethod === paiementMethod ? 'button' : 'button-outline'}`} onClick={() => setSelectPaimentMethod(paiementMethod)}>{paiementMethodsNames[paiementMethod]}</button>
+          <button
+            key={key}
+            className={`text-xl ${selectedPaimentMethod === paiementMethod ? 'button' : 'button-outline'}`}
+            onClick={() => setSelectPaimentMethod(paiementMethod)}
+            disabled={paiementMethod === PaiementMethod.ESIPAY && !esipayEnabled}
+          >
+            {paiementMethodsNames[paiementMethod]}
+            {paiementMethod === PaiementMethod.ESIPAY && esipayEnabled && (
+              <span className="ml-2 text-green-500">
+                <RiCheckLine />
+              </span>
+            )}
+            {paiementMethod === PaiementMethod.ESIPAY && !esipayEnabled && (
+              <span className="ml-2 text-red-500">
+                <RiCloseLine />
+              </span>
+            )}
+          </button>
         ))}
       </div>
       <div className="mt-2 flex justify-center">
