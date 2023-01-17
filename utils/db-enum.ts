@@ -25,7 +25,7 @@ export const paiementMethodsNames: { [key: string]: string } = {
   CARD: 'Carte bleue',
   CASH: 'Espèce',
   LYDIA: 'Lydia',
-  ESIPAY: 'Esipay',
+  ESIPAY: 'EsiPay',
 }
 
 export const commandStatus: CommandStatus[] = [

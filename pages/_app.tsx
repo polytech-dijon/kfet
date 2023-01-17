@@ -10,6 +10,7 @@ import { store, persistor } from '../redux/store'
 import { logout } from '../redux/actions'
 import Navbar from '../components/Navbar'
 import api from '../services/api'
+import esipay from '../services/esipay'
 import type { AppProps } from 'next/app'
 import type { RootState } from '../redux/store'
 
@@ -36,6 +37,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     (async () => {
+      await esipay.start()
       if (accessToken) {
         api.setToken(accessToken)
         try {

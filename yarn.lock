@@ -1390,6 +1390,11 @@
   dependencies:
     "@types/ms" "*"
 
+"@types/dom-serial@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@types/dom-serial/-/dom-serial-1.0.3.tgz#d4eae01b547a3f05f260fac194d79d0ccb365dd9"
+  integrity sha512-iuuXTHSUQfosDJTN3AxTHfYtDZVehzAc07P0d6Y6/D0mNMoAzSQcAB8cf3glzH8MfMpZx8JDQv9C+PBpILVI3g==
+
 "@types/express-serve-static-core@^4.17.18":
   version "4.17.28"
   resolved "https://registry.yarnpkg.com/@types/express-serve-static-core/-/express-serve-static-core-4.17.28.tgz#c47def9f34ec81dc6328d0b1b5303d1ec98d86b8"
