@@ -51,3 +51,29 @@ export function downloadFile(filename: string, content: string, type = "text/pla
     }, 0);
   }
 }
+
+export function strToAinsiBytes(str: string) {
+  return new Uint8Array([...str].map((c) => c.charCodeAt(0) < 256 ? c.charCodeAt(0) : 0))
+}
+
+export function floatToBytes(value: number) {
+  const buffer = new ArrayBuffer(4)
+  new DataView(buffer).setFloat32(0, value, true)
+  return new Uint8Array(buffer)
+}
+
+export function intToBytes(value: number) {
+  const buffer = new ArrayBuffer(4)
+  new DataView(buffer).setUint32(0, value, true)
+  return new Uint8Array(buffer)
+}
+
+export function bytesToInt(bytes: number[]) {
+  const buffer = new ArrayBuffer(4)
+  new Uint8Array(buffer).set(new Uint8Array(bytes))
+  return new DataView(buffer).getUint32(0, true)
+}
+
+export function bytesToStr(bytes: number[]) {
+  return String.fromCharCode(...bytes).replace(/\0/g, '')
+}
