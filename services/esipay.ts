@@ -18,7 +18,7 @@ export const PACKET_IDS = {
   READ_RESPONSE: 0x42,
 }
 
-export enum PaiementResponseStatus {
+export enum EsipayPaiementResponseStatus {
   OK = 0x00,
   NOT_ENOUGH_MONEY = 0x01,
   UNKNOWN_CARD = 0x02,
@@ -140,9 +140,9 @@ class EsiPay {
     this.eventListeners.set(packetId, this.eventListeners.get(packetId)!.filter((cb) => cb !== callback))
   }
 
-  sendAndWaitReturn(sendPacketId: number, receivePakcetId: number, data: string | Uint8Array | number[]): Promise<number[]> {
+  sendAndWaitReturn(sendPacketId: number, receivePacketId: number, data: string | Uint8Array | number[]): Promise<number[]> {
     return new Promise((resolve, reject) => {
-      this.once(receivePakcetId, (result) => {
+      this.once(receivePacketId, (result) => {
         resolve(result)
       })
       this.write(sendPacketId, data)
@@ -169,7 +169,7 @@ class EsiPay {
     const lastnameBuffer = new Uint8Array(new Array(28).fill(0))
     const timestampBuffer = new Uint8Array(new Array(4).fill(0))
     const idUbBuffer = new Uint8Array(new Array(16).fill(0))
-    idEsipayBuffer.set(idEsipay.slice(0, 7))
+    idEsipayBuffer.set(idEsipay.slice(0, 8))
     firstnameBuffer.set(strToAinsiBytes(firstname))
     lastnameBuffer.set(strToAinsiBytes(lastname))
     timestampBuffer.set(intToBytes(Math.round(timestamp / 1000)))
@@ -183,15 +183,15 @@ class EsiPay {
 
   async askPayment(amount: number) {
     const amountBuffer = floatToBytes(amount)
-    const result = await this.sendAndWaitReturn(PACKET_IDS.ASK_PAY, PACKET_IDS.PAY_RESPONSE, [...amountBuffer])
-    return bytesToStr(result.slice(0, 7))
+    const result = await this.sendAndWaitReturn(PACKET_IDS.ASK_PAY, PACKET_IDS.TRY_PAY, [...amountBuffer])
+    return bytesToStr(result.slice(0, 8))
   }
 
   async cancelPayment() {
     await this.write(PACKET_IDS.CANCEL_PAY, [])
   }
 
-  async paiementResponse(status: PaiementResponseStatus, amount: number) {
+  async paiementResponse(status: EsipayPaiementResponseStatus, amount: number) {
     const statusBuffer = new Uint8Array([status])
     const amountBuffer = floatToBytes(amount)
     await this.write(PACKET_IDS.PAY_RESPONSE, [...statusBuffer, ...amountBuffer])

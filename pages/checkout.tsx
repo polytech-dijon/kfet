@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import Head from 'next/head'
 import toast from 'react-hot-toast'
-import { RiAddLine, RiSubtractLine, RiArrowGoBackFill, RiCloseLine, RiCheckLine } from 'react-icons/ri'
+import { RiAddLine, RiSubtractLine, RiArrowGoBackFill, RiCloseLine } from 'react-icons/ri'
 import { withAuthentication } from '../components/withAuthentication'
 import Modal from '../components/Modal'
 import prisma from '../prisma'
 import api from '../services/api'
+import esipay, { EsipayPaiementResponseStatus } from '../services/esipay'
 import { articlesById, mapPrismaItems, Round } from '../utils'
 import { categories, categoryNames, paiementMethods, paiementMethodsNames } from '../utils/db-enum'
 import { PaiementMethod } from '../types/db'
@@ -33,21 +34,60 @@ const Checkout: NextPage<CheckoutProps> = ({ articles, products }) => {
 
     setCategoryOpen(null)
 
+    let toastId: string | null = null
     try {
-      await api.post<PostCheckoutResult, ApiRequest<PostCheckoutBody>>('/api/checkout', {
+      const price = priceAdjustment ? priceAdjustment : card.reduce((acc, article) => acc + article.sell_price, 0)
+      let idEsipay: string | null = null
+
+      if (paiementMethod === PaiementMethod.ESIPAY) {
+        if (!esipay.isConnected()) {
+          if (await esipay.start())
+            toast.success('EsiPay : connexion réussie')
+          else
+            return toast.error('EsiPay : échec de la connexion')
+        }
+
+        toastId = toast.loading('EsiPay : en attente de la transaction')
+
+        try {
+          idEsipay = await esipay.askPayment(price)
+        }
+        catch {
+          toast.error('EsiPay : échec de la transaction', toastId ? { id: toastId } : {})
+          return
+        }
+      }
+
+      const { data } = await api.post<PostCheckoutResult, ApiRequest<PostCheckoutBody>>('/api/checkout', {
         data: {
           card,
           paiementMethod,
           priceAdjustment,
+          idEsipay,
         }
       })
-  
+
+      if (paiementMethod === PaiementMethod.ESIPAY && data.paiementResponseStatus !== EsipayPaiementResponseStatus.OK) {
+        if (data.paiementResponseStatus === EsipayPaiementResponseStatus.NOT_ENOUGH_MONEY)
+          toast.error('EsiPay : solde insuffisant', toastId ? { id: toastId } : {})
+        else if (data.paiementResponseStatus === EsipayPaiementResponseStatus.UNKNOWN_CARD)
+          toast.error('EsiPay : carte inconnue', toastId ? { id: toastId } : {})
+        else
+          toast.error('EsiPay : une erreur inconnue est survenue', toastId ? { id: toastId } : {})
+        esipay.cancelPayment()
+        return
+      }
+
       setCard([])
       setPriceAdjustment(null)
-      toast.success('Panier envoyé !')
+      await esipay.paiementResponse(data.paiementResponseStatus!, data.newBalance!)
+
+      toast.success('EsiPay : transaction réussie', toastId ? { id: toastId } : {})
     }
     catch {
-      toast.error('Une erreur est survenue')
+      toast.error('EsiPay : une erreur inconnue est survenue', toastId ? { id: toastId } : {})
+      if (paiementMethod === PaiementMethod.ESIPAY)
+        esipay.cancelPayment()
     }
   }
 
@@ -125,7 +165,6 @@ type CardOverviewProps = {
 const CardOverview = ({ card, setCard, submitCard, priceAdjustment, setPriceAdjustment }: CardOverviewProps) => {
   const [selectedPaimentMethod, setSelectPaimentMethod] = useState<PaiementMethod>(PaiementMethod.CASH)
   const [priceAdjustmentOpen, setPriceAdjustmentOpen] = useState<boolean>(false)
-  const [esipayEnabled, setEsipayEnabled] = useState<boolean>(false)
 
   const total = priceAdjustment !== null ? priceAdjustment : Round(card.reduce((acc, article) => acc + article.sell_price, 0), 2)
 
@@ -192,19 +231,8 @@ const CardOverview = ({ card, setCard, submitCard, priceAdjustment, setPriceAdju
             key={key}
             className={`text-xl ${selectedPaimentMethod === paiementMethod ? 'button' : 'button-outline'}`}
             onClick={() => setSelectPaimentMethod(paiementMethod)}
-            disabled={paiementMethod === PaiementMethod.ESIPAY && !esipayEnabled}
           >
             {paiementMethodsNames[paiementMethod]}
-            {paiementMethod === PaiementMethod.ESIPAY && esipayEnabled && (
-              <span className="ml-2 text-green-500">
-                <RiCheckLine />
-              </span>
-            )}
-            {paiementMethod === PaiementMethod.ESIPAY && !esipayEnabled && (
-              <span className="ml-2 text-red-500">
-                <RiCloseLine />
-              </span>
-            )}
           </button>
         ))}
       </div>
