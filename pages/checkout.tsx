@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import Head from 'next/head'
 import toast from 'react-hot-toast'
-import { RiAddLine, RiSubtractLine, RiArrowGoBackFill, RiCloseLine } from 'react-icons/ri'
+import { RiAddLine, RiSubtractLine, RiArrowGoBackFill, RiCloseLine, RiLoader4Line } from 'react-icons/ri'
 import { withAuthentication } from '../components/withAuthentication'
 import Modal from '../components/Modal'
 import prisma from '../prisma'
 import api from '../services/api'
-import esipay, { EsipayPaiementResponseStatus } from '../services/esipay'
-import { articlesById, mapPrismaItems, Round } from '../utils'
+import esipay, { EsipayPaiementResponseStatus, PACKET_IDS } from '../services/esipay'
+import { articlesById, bytesToStr, mapPrismaItems, Round } from '../utils'
 import { categories, categoryNames, paiementMethods, paiementMethodsNames } from '../utils/db-enum'
 import { PaiementMethod } from '../types/db'
 import type { GetServerSideProps, NextPage } from 'next'
@@ -28,7 +28,7 @@ const Checkout: NextPage<CheckoutProps> = ({ articles, products }) => {
     setCard(card.concat(article))
   }
 
-  async function submitCard(paiementMethod: PaiementMethod) {
+  async function submitCard(paiementMethod: PaiementMethod, idEsipay: string | null = null) {
     if (card.length === 0)
       return
 
@@ -36,28 +36,6 @@ const Checkout: NextPage<CheckoutProps> = ({ articles, products }) => {
 
     let toastId: string | null = null
     try {
-      const price = priceAdjustment ? priceAdjustment : card.reduce((acc, article) => acc + article.sell_price, 0)
-      let idEsipay: string | null = null
-
-      if (paiementMethod === PaiementMethod.ESIPAY) {
-        if (!esipay.isConnected()) {
-          if (await esipay.start())
-            toast.success('EsiPay : connexion réussie')
-          else
-            return toast.error('EsiPay : échec de la connexion')
-        }
-
-        toastId = toast.loading('EsiPay : en attente de la transaction')
-
-        try {
-          idEsipay = await esipay.askPayment(price)
-        }
-        catch {
-          toast.error('EsiPay : échec de la transaction', toastId ? { id: toastId } : {})
-          return
-        }
-      }
-
       const { data } = await api.post<PostCheckoutResult, ApiRequest<PostCheckoutBody>>('/api/checkout', {
         data: {
           card,
@@ -74,18 +52,17 @@ const Checkout: NextPage<CheckoutProps> = ({ articles, products }) => {
           toast.error('EsiPay : carte inconnue', toastId ? { id: toastId } : {})
         else
           toast.error('EsiPay : une erreur inconnue est survenue', toastId ? { id: toastId } : {})
-        esipay.cancelPayment()
-        return
+        await esipay.paiementResponse(EsipayPaiementResponseStatus.NOT_ENOUGH_MONEY, data.newBalance || 0)
       }
 
       setCard([])
       setPriceAdjustment(null)
       await esipay.paiementResponse(data.paiementResponseStatus!, data.newBalance!)
 
-      toast.success('EsiPay : transaction réussie', toastId ? { id: toastId } : {})
+      toast.success('Transaction réussie', toastId ? { id: toastId } : {})
     }
     catch {
-      toast.error('EsiPay : une erreur inconnue est survenue', toastId ? { id: toastId } : {})
+      toast.error('Une erreur inconnue est survenue', toastId ? { id: toastId } : {})
       if (paiementMethod === PaiementMethod.ESIPAY)
         esipay.cancelPayment()
     }
@@ -158,13 +135,14 @@ const ArticleList = ({ articles, category, setCategoryOpen, addArticle }: Articl
 type CardOverviewProps = {
   card: IArticle[];
   setCard: (card: IArticle[]) => void;
-  submitCard: (paiementMethod: PaiementMethod) => void;
+  submitCard: (paiementMethod: PaiementMethod, idEsipay?: string | null) => void;
   priceAdjustment: number | null;
   setPriceAdjustment: (price: number | null) => void;
 }
 const CardOverview = ({ card, setCard, submitCard, priceAdjustment, setPriceAdjustment }: CardOverviewProps) => {
   const [selectedPaimentMethod, setSelectPaimentMethod] = useState<PaiementMethod>(PaiementMethod.CASH)
   const [priceAdjustmentOpen, setPriceAdjustmentOpen] = useState<boolean>(false)
+  const [paiementLoading, setPaiementLoading] = useState(false)
 
   const total = priceAdjustment !== null ? priceAdjustment : Round(card.reduce((acc, article) => acc + article.sell_price, 0), 2)
 
@@ -182,6 +160,32 @@ const CardOverview = ({ card, setCard, submitCard, priceAdjustment, setPriceAdju
       }
     }
     setCard(newCard)
+  }
+
+  async function esipaySubmit() {
+    setPaiementLoading(true)
+    if (!esipay.isConnected()) {
+      if (await esipay.start())
+        toast.success('EsiPay : connexion réussie')
+      else {
+        toast.error('EsiPay : échec de la connexion')
+        setPaiementLoading(false)
+        return
+      }
+    }
+    esipay.on(PACKET_IDS.TRY_PAY, onEsipayPaiement)
+    esipay.askPayment(total)
+  }
+  async function cancelPaiement() {
+    setPaiementLoading(false)
+    esipay.off(PACKET_IDS.TRY_PAY, onEsipayPaiement)
+    esipay.cancelPayment()
+  }
+  function onEsipayPaiement(result: number[]) {
+    setPaiementLoading(false)
+    esipay.off(PACKET_IDS.TRY_PAY, onEsipayPaiement)
+    const idEsipay = bytesToStr(result.slice(0, 8))
+    submitCard(selectedPaimentMethod, idEsipay)
   }
 
   return <div className="right-0 w-96 bg-white flex flex-col justify-between">
@@ -231,13 +235,33 @@ const CardOverview = ({ card, setCard, submitCard, priceAdjustment, setPriceAdju
             key={key}
             className={`text-xl ${selectedPaimentMethod === paiementMethod ? 'button' : 'button-outline'}`}
             onClick={() => setSelectPaimentMethod(paiementMethod)}
+            disabled={paiementLoading}
           >
             {paiementMethodsNames[paiementMethod]}
           </button>
         ))}
       </div>
       <div className="mt-2 flex justify-center">
-        <button className="button bg-green-700 w-full text-2xl" onClick={() => submitCard(selectedPaimentMethod)}>Valider</button>
+        {!paiementLoading && (
+          <button
+            className="button bg-green-700 w-full text-2xl"
+            onClick={() => {
+              if (selectedPaimentMethod === PaiementMethod.ESIPAY)
+                esipaySubmit()
+              else
+                submitCard(selectedPaimentMethod)
+            }}
+          >
+            Valider
+          </button>
+        )}
+        {paiementLoading && (
+          <button
+            className="button-outline w-full text-xl flex items-center gap-2" onClick={() => cancelPaiement()}>
+            <RiLoader4Line className="animate-spin" />
+            <span>Annuler le paiement en cours</span>
+          </button>
+        )}
       </div>
     </div>
     <PriceAdjustmentModal

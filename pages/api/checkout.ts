@@ -94,7 +94,7 @@ async function makeEsipayPaiement(idEsipay: string, amount: number): Promise<Pos
     }).then((res: any) => res.json())
 
     if (payment.code === "NOT_FOUND") return { paiementResponseStatus: EsipayPaiementResponseStatus.UNKNOWN_CARD }
-    else if (payment.code === "NOT_ALLOWED") return { paiementResponseStatus: EsipayPaiementResponseStatus.NOT_ENOUGH_MONEY }
+    else if (payment.code === "NOT_ALLOWED") return { paiementResponseStatus: EsipayPaiementResponseStatus.NOT_ENOUGH_MONEY, newBalance: entity.data.balance }
     else if (payment.code) return { paiementResponseStatus: EsipayPaiementResponseStatus.UNKNOWN_ERROR }
 
     return {

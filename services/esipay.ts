@@ -183,6 +183,11 @@ class EsiPay {
 
   async askPayment(amount: number) {
     const amountBuffer = floatToBytes(amount)
+    await this.write(PACKET_IDS.ASK_PAY, [...amountBuffer])
+  }
+
+  async askPaymentWithResponse(amount: number) {
+    const amountBuffer = floatToBytes(amount)
     const result = await this.sendAndWaitReturn(PACKET_IDS.ASK_PAY, PACKET_IDS.TRY_PAY, [...amountBuffer])
     return bytesToStr(result.slice(0, 8))
   }
