@@ -53,7 +53,7 @@ const Login: NextPage = () => {
             <h3 className="text-xl font-semibold">Connexion</h3>
             <div className="flex mt-2 w-full gap-2">
               <input
-                type="text"
+                type="password"
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

@@ -8,7 +8,7 @@ export const PACKET_IDS = {
   OPEN_POPUP: 0x11,
   CREATE_CARD: 0x20,
   CANCEL_CREATE: 0x21,
-  RESPONSE: 0x22,
+  CREATE_RESPONSE: 0x22,
   ASK_PAY: 0x30,
   CANCEL_PAY: 0x31,
   TRY_PAY: 0x32,
@@ -25,6 +25,15 @@ export enum EsipayPaiementResponseStatus {
   UNKNOWN_ERROR = 0x03,
 }
 
+export type ReadCardResult = {
+  success: boolean,
+  idEsipay: string,
+  firstname: string,
+  lastname: string,
+  timestamp: number,
+  idUb: string,
+}
+
 class EsiPay {
 
   private port: SerialPort | null = null
@@ -32,23 +41,20 @@ class EsiPay {
 
   async start(): Promise<boolean> {
     if (!navigator.serial) {
-      console.error("Web Serial API not supported in this browser")
+      toast.error("EsiPay : navigateur non compatible")
       return false
     }
 
-    if (this.port) {
-      console.log("EsiPay already connected")
-      return true
-    }
+    if (this.port?.readable) return true
 
     try {
       const port = await navigator.serial.requestPort({ filters: [] })
-      console.log(port)
       this.port = port
       await this.port.open({ baudRate: 115200 })
       this.read()
     }
     catch (e) {
+      toast.error('EsiPay : échec de la connexion')
       return false
     }
 
@@ -56,11 +62,8 @@ class EsiPay {
       toast("EsiPay: " + bytesToStr(data))
     })
 
+    toast.success('EsiPay : connexion réussie')
     return true
-  }
-
-  isConnected() {
-    return !!this.port?.readable
   }
 
   async read() {
@@ -163,13 +166,13 @@ class EsiPay {
     await this.write(PACKET_IDS.SHOW_MESSAGE, [...durationBuffer, ...titleBuffer, ...messageBuffer])
   }
 
-  async writeCard(idEsipay: Uint8Array, firstname: string, lastname: string, timestamp: number, idUb: string) {
+  async writeCard(idEsipay: string, firstname: string, lastname: string, timestamp: number, idUb: string) {
     const idEsipayBuffer = new Uint8Array(new Array(8).fill(0))
     const firstnameBuffer = new Uint8Array(new Array(28).fill(0))
     const lastnameBuffer = new Uint8Array(new Array(28).fill(0))
     const timestampBuffer = new Uint8Array(new Array(4).fill(0))
     const idUbBuffer = new Uint8Array(new Array(16).fill(0))
-    idEsipayBuffer.set(idEsipay.slice(0, 8))
+    idEsipayBuffer.set(idEsipay.split('').map((c) => c.charCodeAt(0)))
     firstnameBuffer.set(strToAinsiBytes(firstname))
     lastnameBuffer.set(strToAinsiBytes(lastname))
     timestampBuffer.set(intToBytes(Math.round(timestamp / 1000)))
@@ -202,16 +205,19 @@ class EsiPay {
     await this.write(PACKET_IDS.PAY_RESPONSE, [...statusBuffer, ...amountBuffer])
   }
 
-  async askRead() {
-    const result = await this.sendAndWaitReturn(PACKET_IDS.ASK_READ, PACKET_IDS.READ_RESPONSE, [])
+  parseRead(result: number[]): ReadCardResult {
     return {
       success: result[0] === 0,
-      idEsipay: result.slice(1, 9),
+      idEsipay: bytesToStr(result.slice(1, 9)),
       firstname: bytesToStr(result.slice(9, 37)),
       lastname: bytesToStr(result.slice(37, 65)),
       timestamp: bytesToInt(result.slice(65, 69)) * 1000,
       idUb: bytesToStr(result.slice(69, 85)),
     }
+  }
+  async askRead() {
+    const result = await this.sendAndWaitReturn(PACKET_IDS.ASK_READ, PACKET_IDS.READ_RESPONSE, [])
+    return this.parseRead(result)
   }
 
   async cancelRead() {

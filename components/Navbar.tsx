@@ -40,6 +40,10 @@ export const links: NavbarLink[] = [
     text: "Commandes",
     href: "/commands",
   },
+  {
+    text: "EsiPay",
+    href: "/esipay",
+  },
 ]
 
 const NavBar = () => {

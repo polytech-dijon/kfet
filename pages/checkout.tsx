@@ -164,15 +164,7 @@ const CardOverview = ({ card, setCard, submitCard, priceAdjustment, setPriceAdju
 
   async function esipaySubmit() {
     setPaiementLoading(true)
-    if (!esipay.isConnected()) {
-      if (await esipay.start())
-        toast.success('EsiPay : connexion réussie')
-      else {
-        toast.error('EsiPay : échec de la connexion')
-        setPaiementLoading(false)
-        return
-      }
-    }
+    if (!(await esipay.start())) return setPaiementLoading(false)
     esipay.on(PACKET_IDS.TRY_PAY, onEsipayPaiement)
     esipay.askPayment(total)
   }

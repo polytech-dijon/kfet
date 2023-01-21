@@ -13,6 +13,7 @@ import api from '../services/api'
 import esipay from '../services/esipay'
 import type { AppProps } from 'next/app'
 import type { RootState } from '../redux/store'
+import { RiLoader4Line } from 'react-icons/ri'
 
 function AppContainer(props: AppProps) {
   if (typeof window === 'undefined') { // SSR
@@ -37,7 +38,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     (async () => {
-      await esipay.start()
+      // await esipay.start()
       if (accessToken) {
         api.setToken(accessToken)
         try {
@@ -61,8 +62,8 @@ function MyApp({ Component, pageProps }: AppProps) {
       <link rel="icon" href="/favicon.ico" />
     </Head>
     {!loaded && (
-      <div className="flex flex-col min-h-screen bg-background-light text-black">
-        Chargement...
+      <div className="flex w-screen h-screen justify-center items-center bg-background-light text-black">
+        <RiLoader4Line className="animate-spin text-5xl" />
       </div>
     )}
     {loaded && (

@@ -1,5 +1,5 @@
-import { Prisma } from "@prisma/client";
-import type { IArticle } from "../types/db";
+import { Prisma } from "@prisma/client"
+import type { IArticle } from "../types/db"
 
 export function Round(value: number, decimals: number = 2) {
   return Math.round((value + Number.EPSILON) * Math.pow(10, decimals)) / Math.pow(10, decimals)
@@ -76,4 +76,8 @@ export function bytesToInt(bytes: number[]) {
 
 export function bytesToStr(bytes: number[]) {
   return String.fromCharCode(...bytes).replace(/\0/g, '')
+}
+
+export function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }

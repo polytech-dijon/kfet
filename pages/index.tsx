@@ -42,6 +42,11 @@ const Home: NextPage = () => {
               Gestion des commandes
             </a>
           </Link>
+          <Link href="/esipay">
+            <a className="p-8 card text-xl uppercase w-full text-center font-semibold">
+              EsiPay
+            </a>
+          </Link>
         </div>
       </div>
     </>
