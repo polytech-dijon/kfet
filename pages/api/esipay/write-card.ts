@@ -1,7 +1,7 @@
 import fetch from 'isomorphic-unfetch'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import type { ApiResponse } from '../../../types/api'
-import findUBName from '../../../utils/findUBname'
+import findUBName from '../../../utils/findUBName'
 
 export type EsipayCardData = {
   idEsipay: string,

@@ -54,12 +54,16 @@ const EsipayPage: NextPage = () => {
             </button>
           </div>
         )}
-        {logged && (
-          <div className="mt-6 flex gap-4 justify-center items-stretch">
+        {logged && <>
+          <div className="mt-12 flex gap-4 justify-center items-stretch">
             <ReadCardModal />
             <WriteCardModal />
           </div>
-        )}
+          <h2 className="mt-12 text-2xl font-semibold">Inscription TrottPark</h2>
+          <div className="mt-4 flex justify-center">
+            <TrottParkModal />
+          </div>
+        </>}
       </div>
     </>
   )
@@ -67,7 +71,7 @@ const EsipayPage: NextPage = () => {
 
 const ReadCardModal = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [cardInfos, setCardInfos] = useState<ReadCardResult | null>(null);
+  const [cardInfos, setCardInfos] = useState<ReadCardResult | null>(null)
 
   async function readCardCallback(result: number[]) {
     setCardInfos(esipay.parseRead(result))
@@ -75,6 +79,7 @@ const ReadCardModal = () => {
   async function readCard() {
     if (!(await esipay.start())) return
     setIsModalOpen(true)
+    setCardInfos(null)
     esipay.once(PACKET_IDS.READ_RESPONSE, readCardCallback)
     esipay.write(PACKET_IDS.ASK_READ, [])
   }
@@ -92,9 +97,11 @@ const ReadCardModal = () => {
     <button className="button w-48" onClick={() => readCard()}>Lire une carte</button>
     <Modal
       isOpen={isModalOpen}
-      cancelButtonText={cardInfos ? "Fermer" : "Annuler"}
+      cancelButtonText={cardInfos && cardInfos.success ? "Fermer" : "Annuler"}
       onCancel={() => cancel()}
-      submitButton={false}
+      submitButton={!!cardInfos && !cardInfos.success}
+      submitButtonText="Réessayer"
+      onSubmit={() => readCard()}
       title="Lire une carte"
     >
       <div>
@@ -102,7 +109,10 @@ const ReadCardModal = () => {
           <span>En attente de la carte...</span>
         )}
         {cardInfos && !cardInfos.success && (
-          <span>Erreur de lecture</span>
+          <span className="mt-2 flex items-center gap-1">
+            <HiExclamation className="text-2xl text-red-500" />
+            Erreur de lecture
+          </span>
         )}
         {cardInfos && cardInfos.success && (
           <div className="pt-2 flex flex-col gap-1">
@@ -128,7 +138,7 @@ const WriteCardModal = () => {
   }
   async function writeCard() {
     if (!idUb) return
-  
+
     try {
       setState('fetching')
       const { data } = await api.post('/api/esipay/write-card', { idUb })
@@ -139,7 +149,6 @@ const WriteCardModal = () => {
       esipay.writeCard(data.idEsipay, data.firstname, data.lastname, data.timestamp, data.idUb)
     }
     catch (e: any) {
-      console.log("write error", e)
       setState('error')
       if (e.error === 'Invalid id')
         setError('Erreur : identifiant uB invalide')
@@ -195,6 +204,95 @@ const WriteCardModal = () => {
           <span className="mt-2 flex items-center gap-1">
             <HiExclamation className="text-2xl text-red-500" />
             {error || "Une erreur s'est produite lors de l'écriture."}
+          </span>
+        )}
+      </div>
+    </Modal>
+  </>
+}
+
+const TrottParkModal = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [confirmed, setConfirmed] = useState(false)
+  const [cardInfos, setCardInfos] = useState<ReadCardResult | null>(null)
+  const [done, setDone] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function readCardCallback(result: number[]) {
+    const parsedResult = esipay.parseRead(result)
+    setCardInfos(parsedResult)
+    console.log(parsedResult)
+    if (!parsedResult.success)
+      return setError("Erreur lors de la lecture de la carte")
+    try {
+      const { ok } = await api.post('/api/esipay/trott-park', { idEsipay: parsedResult.idEsipay })
+      if (!ok) throw new Error()
+      setDone(true)
+    }
+    catch (e: any) {
+      console.log(e)
+      if (e.error === 'Invalid id')
+        setError("Erreur : identifiant EsiPay invalide")
+      else if (e.error === 'Already registered')
+        setError("Erreur : la carte est déjà inscrite au TrottPark")
+      else
+        setError("Erreur lors de l'inscription au TrottPark")
+    }
+  }
+  async function readCard() {
+    if (!(await esipay.start())) return
+    setConfirmed(true)
+    setCardInfos(null)
+    esipay.once(PACKET_IDS.READ_RESPONSE, readCardCallback)
+    esipay.write(PACKET_IDS.ASK_READ, [])
+  }
+  async function cancel() {
+    if (!cardInfos) {
+      esipay.off(PACKET_IDS.READ_RESPONSE, readCardCallback)
+      esipay.write(PACKET_IDS.CANCEL_READ, [])
+    }
+    setIsModalOpen(false)
+    await wait(300)
+    setConfirmed(false)
+    setCardInfos(null)
+    setDone(false)
+    setError(null)
+  }
+
+  return <>
+    <button className="button w-48" onClick={() => setIsModalOpen(true)}>Nouvelle Inscription</button>
+    <Modal
+      isOpen={isModalOpen}
+      title="Nouvelle Inscription"
+      cancelButton={!done && !error}
+      onCancel={() => cancel()}
+      submitButton={!confirmed || done || !!error}
+      submitButtonText={done || error ? "OK" : "Confirmer"}
+      onSubmit={() => done || error ? cancel() : readCard()}
+    >
+      <div>
+        {!confirmed && !cardInfos && (
+          <span className="mt-6 pb-2 flex items-center gap-2">
+            <HiExclamation className="text-6xl text-yellow-500" />
+            Avant l&apos;inscription, assurez-vous que le paiement pour accéder au parking à trottinettes a été effectué.
+          </span>
+        )}
+        {confirmed && !cardInfos && (
+          <span>En attente de la carte...</span>
+        )}
+        {confirmed && cardInfos && !done && !error && (
+          <span>Enregistrement de la carte...</span>
+        )}
+        {done && (
+          <span className="mt-2 flex items-center gap-1">
+            <HiCheck className="text-2xl text-green-500" />
+            L&apos;inscription au TrottPark a été effectuée !
+          </span>
+        )}
+        {error && (
+          <span className="mt-2 flex items-center gap-1">
+            <HiExclamation className="text-2xl text-red-500" />
+            {error}
           </span>
         )}
       </div>
