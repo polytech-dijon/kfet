@@ -48,13 +48,16 @@ class EsiPay {
     if (this.port?.readable) return true
 
     try {
-      const port = await navigator.serial.requestPort({ filters: [] })
-      this.port = port
-      await this.port.open({ baudRate: 115200 })
+      const port = await this.getPort()
+      await port.open({ baudRate: 115200 })
+      if (!this.port?.readable) throw new Error('Port not readable')
       this.read()
+      if (!(await this.ping())) throw new Error('No response from ping')
     }
     catch (e) {
+      console.log(e)
       toast.error('EsiPay : échec de la connexion')
+      localStorage.removeItem('lastEsiPayPort')
       return false
     }
 
@@ -66,10 +69,25 @@ class EsiPay {
     return true
   }
 
+  async getPort(): Promise<SerialPort> {
+    if (localStorage.getItem('lastEsiPayPort')) {
+      const { usbProductId, usbVendorId } = JSON.parse(localStorage.getItem('lastEsiPayPort')!)
+      const availablePorts = await navigator.serial.getPorts()
+      const port = availablePorts.find((port) => port.getInfo().usbProductId === usbProductId && port.getInfo().usbVendorId === usbVendorId)
+      if (port) {
+        this.port = port
+        return port
+      }
+    }
+    const port = await navigator.serial.requestPort({ filters: [] })
+    this.port = port
+    localStorage.setItem('lastEsiPayPort', JSON.stringify(port.getInfo()))
+    return port
+  }
+
   async read() {
     if (!this.port?.readable) return
 
-    console.log("Reading...")
     while (this.port.readable) {
       const reader = this.port.readable.getReader()
       try {
@@ -77,12 +95,10 @@ class EsiPay {
         while (true) {
           const { value, done } = await reader.read()
           if (value) {
-            console.log("read", value)
             buffer = new Uint8Array([...buffer, ...value])
             if (buffer.length >= buffer[0]) {
               const packetId = buffer[1]
               const data = buffer.slice(2)
-              console.log("packet", packetId, data)
               buffer = new Uint8Array([])
               if (this.eventListeners.has(packetId))
                 this.eventListeners.get(packetId)!.forEach((callback) => callback([...data]))
@@ -118,7 +134,6 @@ class EsiPay {
       packetId, // packet id
       ...bytes, // data
     ])
-    console.log("write", [...bytes])
 
     await writer.write(bytes)
 
@@ -152,9 +167,18 @@ class EsiPay {
     })
   }
 
-  async ping() {
-    const result = await this.sendAndWaitReturn(PACKET_IDS.PING, PACKET_IDS.PONG, [0x0b])
-    return bytesToStr(result)
+  async ping(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      async function pingCallback(result: number[]) {
+        resolve(true)
+      }
+      esipay.once(PACKET_IDS.PONG, pingCallback)
+      esipay.write(PACKET_IDS.PING, [0x0b])
+      setTimeout(() => {
+        esipay.off(PACKET_IDS.PONG, pingCallback)
+        resolve(false)
+      }, 1000)
+    })
   }
 
   async showMessage(duration: number, title: string, message: string) {

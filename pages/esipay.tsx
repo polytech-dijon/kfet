@@ -56,12 +56,12 @@ const EsipayPage: NextPage = () => {
         )}
         {logged && <>
           <div className="mt-12 flex gap-4 justify-center items-stretch">
-            <ReadCardModal />
-            <WriteCardModal />
+            <ReadCardModal password={password} />
+            <WriteCardModal password={password} />
           </div>
           <h2 className="mt-12 text-2xl font-semibold">Inscription TrottPark</h2>
           <div className="mt-4 flex justify-center">
-            <TrottParkModal />
+            <TrottParkModal password={password} />
           </div>
         </>}
       </div>
@@ -69,7 +69,11 @@ const EsipayPage: NextPage = () => {
   )
 }
 
-const ReadCardModal = () => {
+type ModalProps = {
+  password: string,
+}
+
+const ReadCardModal = ({ password }: ModalProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [cardInfos, setCardInfos] = useState<ReadCardResult | null>(null)
 
@@ -127,7 +131,7 @@ const ReadCardModal = () => {
   </>
 }
 
-const WriteCardModal = () => {
+const WriteCardModal = ({ password }: ModalProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [state, setState] = useState<'idle' | 'fetching' | 'writing' | 'done' | 'error'>('idle')
   const [idUb, setIdUb] = useState('')
@@ -141,7 +145,7 @@ const WriteCardModal = () => {
 
     try {
       setState('fetching')
-      const { data } = await api.post('/api/esipay/write-card', { idUb })
+      const { data } = await api.post('/api/esipay/write-card', { idUb, password })
 
       if (!(await esipay.start())) return setState('idle')
       setState('writing')
@@ -211,7 +215,7 @@ const WriteCardModal = () => {
   </>
 }
 
-const TrottParkModal = () => {
+const TrottParkModal = ({ password }: ModalProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [confirmed, setConfirmed] = useState(false)
   const [cardInfos, setCardInfos] = useState<ReadCardResult | null>(null)
@@ -225,7 +229,7 @@ const TrottParkModal = () => {
     if (!parsedResult.success)
       return setError("Erreur lors de la lecture de la carte")
     try {
-      const { ok } = await api.post('/api/esipay/trott-park', { idEsipay: parsedResult.idEsipay })
+      const { ok } = await api.post('/api/esipay/trott-park', { idEsipay: parsedResult.idEsipay, password })
       if (!ok) throw new Error()
       setDone(true)
     }

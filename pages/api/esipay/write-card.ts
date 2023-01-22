@@ -15,6 +15,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   if (req.method !== 'POST')
     return res.status(400).json({ ok: false, error: 'Invalid method' })
 
+  const { password } = req.body
+  if (password !== process.env.ESIPAY_PASSWORD)
+    return res.status(400).json({ ok: false, error: 'Invalid password' })
+
   const { idUb } = req.body
   if (!idUb)
     return res.status(400).json({ ok: false, error: 'No id provided' })
