@@ -1,37 +1,67 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# KFET KING : Site de gestion de la KFET
 
-## Getting Started
+Ce site a pour but de gérer les stocks et les ventes de la KFET.
 
-First, run the development server:
+Il permet d'ouvrir une caisse virtuelle, d'y ajouter des articles, de choisir la méthode de paiement et d'enregistrer l'achat.
+La liste des produits peut être gérée sur le site ainsi que les stocks de chacun de ceux-ci.
 
-```bash
-npm run dev
-# or
-yarn dev
-```
+Il intègre aussi un système de gestion de commande, permettant de gérer les commandes de nourritures le midi (pizza, etc.) et de les afficher sur l'autre écran de la KFET.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ce site est créé avec Next.js en Typescript, et utilise Prisma comme ORM.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## Installation
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+Prérequis : Node.js installé sur votre machine avec Yarn v1 et une base de données PostgreSQL.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+Installer les dépendances Node.js :
 
-## Learn More
+    yarn
 
-To learn more about Next.js, take a look at the following resources:
+Créer un fichier .env dans le dossier server et copier le contenu du fichier .env.example dans ce fichier. Modifier les variables d'environnement pour correspondre à votre configuration. Voici l'explication de chaque variable :
+- `NEXT_PUBLIC_APP_BASE_URL` : l'adresse du domaine sur lequel le site sera accessible (dans notre cas `https://kfet.bde-esirem.fr`)
+- `JWT_SECRET` : 
+- `DATABASE_URL` : adresse de la base de données (sous la forme `postgresql://USER:PASSWORD@HOST:PORT/DATABASE`)
+- `LOGIN_PASSWORD` : mot de passe pour accéder au site de la KFET
+- `ESIPAY_API_URL` : adresse de l'API ESIPAY (dans notre cas `https://esipay.bde-esirem.fr`)
+- `ESIPAY_API_KEY` : clé d'API pour ESIPAY
+- `ESIPAY_PAYMENT_RECEIVER_ID` : identifiant de la personne recevant les paiements au nom de la KFET
+- `ESIPAY_PASSWORD` : mot de passe pour accéder à la page d'ESIPAY sur le site de la KFET
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Pour lancer en mode développement (le panel d'administration et le client web ne peuvent pas être utilisés simultanément en mode développement) :
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+    yarn dev
 
-## Deploy on Vercel
+Pour build et lancer en mode production :
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+    yarn build
+    yarn start -p VOTRE_PORT
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Base de données
 
+Le site de la KFET utilise PostgreSQL en tant que base de données, et il utilise [Prisma](https://www.prisma.io/) comme ORM.
 
-Salut c moa
+Prisma est un ORM qui permet de gérer les migrations de la base de données. Le fichier `prisma/schema.prisma` contient la structure de la base de données.
+
+À chaque changement de la structure de la base de données, vous devriez créer une migration. Pour créer une migration, vous pouvez utiliser la commande suivante :
+
+    yarn db:migrate
+
+Pour générer des données de test, vous pouvez utiliser la commande suivante :
+
+    yarn db:seed
+
+Pour générer le client Prisma, il faut utiliser la commande suivante :
+
+    yarn prisma generate
+
+Pour déployer les migrations sur la base de données, il faut utiliser la commande suivante :
+
+    yarn prisma migrate deploy
+
+## Crédits
+
+- [**Gauthier THOMAS**](https://github.com/gauthier-th) : création du projet
+
+## Licence
+
+Le site de la KFET est distribué sous licence MIT. Voir le fichier `LICENSE` pour plus d'informations.
