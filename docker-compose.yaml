@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   db:
+    container_name: kfet-db
     image: postgres:15-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -11,6 +12,7 @@ services:
       - kfet-network
 
   app:
+    container_name: kfet-app
     image: node:18-bullseye
     working_dir: /app
     volumes:
