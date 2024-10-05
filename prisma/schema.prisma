@@ -15,25 +15,11 @@ model Article {
     category        String
     products        Int[]
     image           String?
+    favorite        Boolean  @default(false)
     deleted         Boolean  @default(false)
 }
 
-model Product {
-    id              Int      @id @default(autoincrement())
-    name            String
-    quantity        Int
-    buying_price    Decimal
-    deleted         Boolean  @default(false)
-}
 
-model Sale {
-    id              Int      @id @default(autoincrement())
-    paiement_method String
-    articles        Int[]
-    buying_price    Decimal  @default(0)
-    sell_price      Decimal
-    created_at      DateTime @default(now())
-}
 
 model Command {
     id              Int      @id @default(autoincrement())
