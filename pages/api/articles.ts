@@ -70,7 +70,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       data: {
         name: article.name,
         category: article.category,
-        sell_price: new Prisma.Decimal(article.sell_price)
+        sell_price: new Prisma.Decimal(article.sell_price),
+        favorite: article.favorite,
       },
     })
     prisma.$disconnect()
