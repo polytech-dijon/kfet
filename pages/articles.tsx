@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Head from 'next/head'
 import toast from 'react-hot-toast'
-import { RiAddLine, RiDeleteBinFill, RiEditFill } from 'react-icons/ri'
+import { RiAddLine, RiDeleteBinFill, RiEditFill, RiStarFill, RiStarLine } from 'react-icons/ri'
 import { withAuthentication } from '../components/withAuthentication'
 import api from '../services/api'
 import Select from '../components/Select'
@@ -59,6 +59,11 @@ const Articles: NextPage = () => {
       console.error(e)
       toast.error('Une erreur est survenue...')
     }
+  }
+
+  async function setFavoriteArticle(article: IArticle) {
+    article.favorite = !article.favorite;
+    updateArticle(article);
   }
 
   async function createArticle(article: Partial<IArticle>) {
@@ -133,6 +138,13 @@ const Articles: NextPage = () => {
                         </button>
                         <button className="button red ml-3" onClick={() => setDeletingArticle(article)}>
                           <RiDeleteBinFill size={20} />
+                        </button>
+                        <button className="white ml-3" onClick={() => setFavoriteArticle(article)}>
+                          {article.favorite ?
+                          <RiStarFill size={20} fill='rgb(250 204 21)'/>
+                          :
+                          <RiStarLine size={20}/>
+                          }
                         </button>
                       </td>
                     </tr>
