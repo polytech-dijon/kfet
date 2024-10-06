@@ -1,4 +1,4 @@
-import { Category, PaiementMethod, CommandStatus } from '../types/db'
+import { Category, CommandStatus } from '../types/db'
 
 export const categories: Category[] = [
   Category.HOT_DRINKS,

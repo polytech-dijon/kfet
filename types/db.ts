@@ -1,11 +1,5 @@
 import { Prisma } from '@prisma/client'
 
-export enum PaiementMethod {
-  CASH = 'CASH',
-  CARD = 'CARD',
-  LYDIA = 'LYDIA',
-  ESIPAY = 'ESIPAY',
-}
 
 export enum Category {
   HOT_DRINKS = 'HOT_DRINKS',
