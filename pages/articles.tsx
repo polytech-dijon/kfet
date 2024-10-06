@@ -139,7 +139,7 @@ const Articles: NextPage = () => {
                         <button className="button red ml-3" onClick={() => setDeletingArticle(article)}>
                           <RiDeleteBinFill size={20} />
                         </button>
-                        <button className="white ml-3" onClick={() => setFavoriteArticle(article)}>
+                        <button className="button-outline ml-3" onClick={() => setFavoriteArticle(article)}>
                           {article.favorite ?
                           <RiStarFill size={20} fill='rgb(250 204 21)'/>
                           :
