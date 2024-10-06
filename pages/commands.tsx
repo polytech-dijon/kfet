@@ -225,6 +225,7 @@ const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCommand }
   async function getArticles() {
     try {
       const { data } = await api.get<GetArticlesResult>('/api/articles')
+      data.articles.sort((a, b) => a.favorite === b.favorite ? 0 : a.favorite ? -1 : 1)
       setArticles(data.articles)
     }
     catch {
@@ -363,12 +364,11 @@ const EditCommandModal = ({ isOpen, onClose, onSubmit, articles, command }: Edit
         </div>
         <div className="my-3">
           <label htmlFor="commandDescription" className="block mb-2 text-sm font-medium text-gray-900">Description (optionnel) :</label>
-          {/* <textarea id="commandDescription" value={description} onChange={(e) => setDescription(e.target.value)} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" /> */}
           <Select
             value={article}
             setValue={setArticle}
             values={articles}
-            accessor={(a) => a?.name || "Nom de l'article..."}
+            accessor={(a) => !!a ? a.name+(a.favorite?"⭐":"") : "Nom de l'article..."}
             className="w-72"
           />
         </div>
