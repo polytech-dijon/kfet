@@ -17,7 +17,7 @@ services:
     working_dir: /app
     volumes:
       - ./:/app
-    command: sh -c "npm install && npm run db:migrate && npm run db:seed && npm run build && npm run start"
+    command: sh -c "npm install && npm run db:deploy && npm run db:seed && npm run build && npm run start"
     ports:
       - "3000:3000"
     expose:

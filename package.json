@@ -11,6 +11,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "db:deploy": "dotenv -e .env.local -- yarn prisma migrate deploy",
     "db:migrate": "dotenv -e .env.local -- yarn prisma migrate dev",
     "db:seed": "dotenv -e .env.local -- ts-node --compilerOptions \"{\\\"target\\\": \\\"ES2017\\\", \\\"module\\\": \\\"commonjs\\\"}\" prisma/seed.ts"
   },
