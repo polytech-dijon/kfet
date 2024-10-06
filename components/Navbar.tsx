@@ -17,33 +17,13 @@ export const links: NavbarLink[] = [
     footerOnly: true
   },
   {
-    text: "Caisse",
-    href: "/checkout",
-  },
-  {
-    text: "Résumé",
-    href: "/summary",
-  },
-  {
-    text: "Ventes",
-    href: "/sales",
-  },
-  {
-    text: "Stocks",
-    href: "/stocks",
-  },
-  {
     text: "Articles",
     href: "/articles",
   },
   {
     text: "Commandes",
     href: "/commands",
-  },
-  {
-    text: "EsiPay",
-    href: "/esipay",
-  },
+  }
 ]
 
 const NavBar = () => {
