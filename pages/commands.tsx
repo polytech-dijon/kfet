@@ -210,6 +210,18 @@ const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCommand }
   const [isNewCommandOpen, setIsNewCommandOpen] = useState(false)
   const [editingCommand, setEditingCommand] = useState<Command | null>(null)
 
+  /**
+   * Convert a timestamp to a readable time taking into account the timezone offset
+   * @param timestamp The timestamp to convert
+   * @returns The readable time
+   */
+  function toReadableCurrentTime(timestamp: Date) {
+    timestamp = new Date(timestamp)
+    let offset = timestamp.getTimezoneOffset()
+    timestamp = new Date(timestamp.getTime() - (offset * 60000))
+    return timestamp.toISOString().substring(11, 19)
+  }
+  
   async function getArticles() {
     try {
       const { data } = await api.get<GetArticlesResult>('/api/articles')
@@ -281,7 +293,7 @@ const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCommand }
                     {commandStatusNames[command.status]}
                   </td>
                   <td className="px-6 py-4">
-                    {new Date(command.created_at).toISOString().substring(11, 19)}
+                    {toReadableCurrentTime(command.created_at)}
                   </td>
                   <td className="px-6 py-1 flex gap-1.5">
                     <button className="button" onClick={() => setEditingCommand(command)}>

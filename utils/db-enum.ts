@@ -14,19 +14,6 @@ export const categoryNames: { [key: string]: string } = {
   SALTY: 'Salé',
 }
 
-export const paiementMethods: PaiementMethod[] = [
-  PaiementMethod.CASH,
-  PaiementMethod.CARD,
-  PaiementMethod.LYDIA,
-  PaiementMethod.ESIPAY,
-]
-
-export const paiementMethodsNames: { [key: string]: string } = {
-  CARD: 'Carte bleue',
-  CASH: 'Espèce',
-  LYDIA: 'Lydia',
-  ESIPAY: 'EsiPay',
-}
 
 export const commandStatus: CommandStatus[] = [
   CommandStatus.PENDING,
