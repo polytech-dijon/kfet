@@ -13,7 +13,6 @@ model Article {
     description     String?
     sell_price      Decimal
     category        String
-    products        Int[]
     image           String?
     favorite        Boolean  @default(false)
     deleted         Boolean  @default(false)

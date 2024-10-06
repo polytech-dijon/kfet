@@ -10,12 +10,11 @@ import MultiSelect from '../components/MultiSelect'
 import { Category } from '../types/db'
 import { categories, categoryNames } from '../utils/db-enum'
 import type { NextPage } from 'next'
-import type { IArticle, IProduct } from '../types/db'
+import type { IArticle } from '../types/db'
 import type { ApiRequest } from '../types/api'
 import type { DeleteArticlesBody, DeleteArticlesResult, GetArticlesResult, PostArticlesBody, PostArticlesResult, PutArticlesBody, PutArticlesResult } from './api/articles'
 
 const Articles: NextPage = () => {
-  const [products, setProducts] = useState<IProduct[]>([])
   const [articles, setArticles] = useState<IArticle[]>([])
   const [editingArticle, setEditingArticle] = useState<IArticle | null>(null)
   const [deletingArticle, setDeletingArticle] = useState<IArticle | null>(null)
@@ -25,7 +24,6 @@ const Articles: NextPage = () => {
     try {
       const { data } = await api.get<GetArticlesResult>('/api/articles')
       setArticles(data.articles)
-      setProducts(data.products)
     }
     catch {
       toast.error('Une erreur est survenue')
@@ -146,9 +144,9 @@ const Articles: NextPage = () => {
           </div>
         )}
       </div>
-      <EditArticleModal editingArticle={editingArticle} setEditingArticle={setEditingArticle} products={products} updateArticle={updateArticle} />
+      <EditArticleModal editingArticle={editingArticle} setEditingArticle={setEditingArticle} updateArticle={updateArticle} />
       <DeleteArticleModal deletingArticle={deletingArticle} setDeletingArticle={setDeletingArticle} deleteArticle={deleteArticle} />
-      <CreateArticleModal createArticleOpen={createArticleOpen} setCreateModalOpen={setCreateModalOpen} products={products} createArticle={createArticle} />
+      <CreateArticleModal createArticleOpen={createArticleOpen} setCreateModalOpen={setCreateModalOpen} createArticle={createArticle} />
     </>
   )
 }
@@ -156,10 +154,9 @@ const Articles: NextPage = () => {
 type EditArticleModalProps = {
   editingArticle: IArticle | null;
   setEditingArticle: (article: IArticle | null) => void;
-  products: IProduct[];
   updateArticle: (article: IArticle) => Promise<void>;
 }
-function EditArticleModal({ editingArticle, setEditingArticle, products, updateArticle }: EditArticleModalProps) {
+function EditArticleModal({ editingArticle, setEditingArticle, updateArticle }: EditArticleModalProps) {
   const [name, setName] = useState('')
   const [category, setCategory] = useState<Category>(Category.COLD_DRINKS)
   const [sellPrice, setSellPrice] = useState(0)
@@ -170,16 +167,9 @@ function EditArticleModal({ editingArticle, setEditingArticle, products, updateA
       setName(editingArticle.name)
       setCategory(editingArticle.category as Category)
       setSellPrice(editingArticle.sell_price)
-      setArticleProducts(editingArticle.products)
     }
   }, [editingArticle]);
 
-  const multiSelectOptions = products
-    .filter((product) => !product.deleted)
-    .map((product) => ({
-      value: product.id,
-      label: product.name,
-    }))
 
   return <Modal
     isOpen={editingArticle !== null}
@@ -191,9 +181,9 @@ function EditArticleModal({ editingArticle, setEditingArticle, products, updateA
         description: editingArticle.description,
         sell_price: sellPrice,
         category,
-        products: articleProducts,
         image: editingArticle.image,
         deleted: editingArticle.deleted,
+        favorite: editingArticle.favorite,
       })
       setEditingArticle(null)
     }}
@@ -218,17 +208,6 @@ function EditArticleModal({ editingArticle, setEditingArticle, products, updateA
     <div className="my-3">
       <label htmlFor="articleSellPrice" className="block mb-2 text-sm font-medium text-gray-900">Prix de vente :</label>
       <input type="number" id="articleSellPrice" value={sellPrice} onChange={(e) => setSellPrice(parseFloat(e.target.value))} step={0.05} min={0} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required />
-    </div>
-    <div className="my-3">
-      <label className="block mb-2 text-sm font-medium text-gray-900">Produits :</label>
-      <MultiSelect
-        options={multiSelectOptions}
-        placeholder="Sélectionnez un ou plusieurs produits"
-        isMulti
-        value={articleProducts.map((articleProduct) => multiSelectOptions.find((option) => option.value === articleProduct))}
-        onChange={(values) => setArticleProducts(values.map((value) => value!.value))}
-        isClearable={false}
-      />
     </div>
   </Modal>
 }
@@ -260,30 +239,22 @@ function DeleteArticleModal({ deletingArticle, setDeletingArticle, deleteArticle
 type CreateArticleModalProps = {
   createArticleOpen: boolean;
   setCreateModalOpen: (open: boolean) => void;
-  products: IProduct[];
   createArticle: (article: Partial<IArticle>) => Promise<void>;
 }
-function CreateArticleModal({ createArticleOpen, setCreateModalOpen, products, createArticle }: CreateArticleModalProps) {
+function CreateArticleModal({ createArticleOpen, setCreateModalOpen, createArticle }: CreateArticleModalProps) {
   const [name, setName] = useState('')
   const [category, setCategory] = useState(Category.COLD_DRINKS)
   const [sellPrice, setSellPrice] = useState(0)
   const [articleProducts, setArticleProducts] = useState<number[]>([])
 
-  const multiSelectOptions = products
-  .filter((product) => !product.deleted)
-    .map((product) => ({
-      value: product.id,
-      label: product.name,
-    }))
-
+  
   return <Modal
     isOpen={createArticleOpen}
     onSubmit={async () => {
       await createArticle({
         name,
         category,
-        sell_price: sellPrice,
-        products: articleProducts,
+        sell_price: sellPrice
       })
       setCreateModalOpen(false)
       setName('')
@@ -312,17 +283,6 @@ function CreateArticleModal({ createArticleOpen, setCreateModalOpen, products, c
     <div className="my-3">
       <label htmlFor="articleSellPrice" className="block mb-2 text-sm font-medium text-gray-900">Prix de vente :</label>
       <input type="number" id="articleSellPrice" value={sellPrice} onChange={(e) => setSellPrice(parseFloat(e.target.value))} step={0.05} min={0} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required />
-    </div>
-    <div className="my-3">
-      <label className="block mb-2 text-sm font-medium text-gray-900">Produits :</label>
-      <MultiSelect
-        options={multiSelectOptions}
-        placeholder="Sélectionnez un ou plusieurs produits"
-        isMulti
-        value={articleProducts.map((articleProduct) => multiSelectOptions.find((option) => option.value === articleProduct))}
-        onChange={(values) => setArticleProducts(values.map((value) => value!.value))}
-        isClearable={false}
-      />
     </div>
   </Modal>
 }

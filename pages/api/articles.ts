@@ -4,10 +4,9 @@ import { mapPrismaItems } from '../../utils'
 import verifyJwt from '../../utils/verifyJwt'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import type { ApiResponse } from '../../types/api'
-import type { IArticle, IProduct } from '../../types/db'
+import type { IArticle } from '../../types/db'
 
 export type GetArticlesResult = {
-  products: IProduct[];
   articles: IArticle[];
 }
 export type PutArticlesBody = {
@@ -29,8 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     if (!verifyJwt({ req, res }))
       return
 
-    const [products, articles] = await Promise.all([
-      prisma.product.findMany(),
+    const [articles] = await Promise.all([
       prisma.article.findMany({
         where: {
           deleted: false
@@ -48,7 +46,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     prisma.$disconnect()
 
     const data: GetArticlesResult = {
-      products: mapPrismaItems(products),
       articles: mapPrismaItems(articles),
     }
     res.status(200).json({
@@ -73,8 +70,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       data: {
         name: article.name,
         category: article.category,
-        sell_price: new Prisma.Decimal(article.sell_price),
-        products: article.products,
+        sell_price: new Prisma.Decimal(article.sell_price)
       },
     })
     prisma.$disconnect()
