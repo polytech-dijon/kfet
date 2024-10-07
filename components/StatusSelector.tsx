@@ -6,7 +6,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { Command, CommandStatus } from '../types/db';
 
-export default function StatusSelector({command, onClick} : { command : Command, onClick : (status: CommandStatus) => void}) {
+export default function StatusSelector({command, onClick} : { command : Command, onClick : (command: Command) => void}) {
   const [status, setStatus] = React.useState<string | null>('left');
 
   const handleStatus = (
