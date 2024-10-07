@@ -7,7 +7,7 @@
   },
   "private": true,
   "scripts": {
-    "docker:dev": "docker-compose -f docker-compose.dev.yaml up --build",
+    "docker:dev": "docker compose -f docker-compose.dev.yaml up --build",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -17,7 +17,9 @@
     "db:seed": "dotenv -e .env.local -- ts-node --compilerOptions \"{\\\"target\\\": \\\"ES2017\\\", \\\"module\\\": \\\"commonjs\\\"}\" prisma/seed.ts"
   },
   "dependencies": {
+    "@emotion/styled": "^11.13.0",
     "@headlessui/react": "^1.4.2",
+    "@mui/icons-material": "^6.1.2",
     "@prisma/client": "^3.11.1",
     "@types/dom-serial": "^1.0.3",
     "@types/react-select": "^5.0.1",
