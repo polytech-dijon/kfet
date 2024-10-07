@@ -16,6 +16,7 @@ import type { ApiRequest } from '../types/api'
 import type { RootState } from '../redux/store'
 import type { DeleteCommandBody, DeleteCommandResult, GetCommandResult, PostCommandBody, PostCommandResult, PutCommandBody, PutCommandResult } from './api/commands'
 import type { GetArticlesResult } from './api/articles'
+import StatusSelector from '../components/StatusSelector'
 
 const Commands: NextPage = () => {
   const accessToken: string | null = useSelector((state: RootState) => state.accessToken)
@@ -291,7 +292,7 @@ const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCommand }
                     {command.description || <span className="italic">Aucune description</span>}
                   </td>
                   <td className="px-6 py-4">
-                    {commandStatusNames[command.status]}
+                    <StatusSelector command={command} onClick={updateCommand}/>
                   </td>
                   <td className="px-6 py-4">
                     {toReadableCurrentTime(command.created_at)}
