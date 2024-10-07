@@ -4,7 +4,7 @@ import { Category } from '../types/db'
 export const articles = [
   {
     name:'Café vanille ou noisette',
-    sell_price: new Prisma.Decimal(0.7),
+    sell_price: new Prisma.Decimal(0.5),
     category: Category.HOT_DRINKS
 },
 {
@@ -139,8 +139,8 @@ export const articles = [
 },
 {
     name:'Chips',
-    sell_price: new Prisma.Decimal(1.0),
-    category: Category.SWEET
+    sell_price: new Prisma.Decimal(0.5),
+    category: Category.SALTY
 },
 {
     name:'Eau gazeuse',
@@ -154,6 +154,11 @@ export const articles = [
 },
 {
     name:'Caprisun',
+    sell_price: new Prisma.Decimal(0.5),
+    category: Category.COLD_DRINKS
+},
+{
+    name:'Lait',
     sell_price: new Prisma.Decimal(0.5),
     category: Category.COLD_DRINKS
 },
