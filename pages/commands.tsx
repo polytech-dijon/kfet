@@ -353,16 +353,6 @@ const EditCommandModal = ({ isOpen, onClose, onSubmit, articles, command }: Edit
             className="w-72"
           />
         </div>
-        <div className="my-3">
-          <label htmlFor="commandStatus" className="block mb-2 text-sm font-medium text-gray-900">Statut de la commande :</label>
-          <Select
-            value={status}
-            setValue={setStatus}
-            values={commandStatus}
-            accessor={(s) => commandStatusNames[s]}
-            className="w-40"
-          />
-        </div>
       </Modal>
     </>
   )
