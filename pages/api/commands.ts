@@ -62,8 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       data: {
         title: command.title,
         description: command.description,
-        status: command.status,
-        estimated_end: command.estimated_end ? new Date(command.estimated_end) : null,
+        status: command.status
       },
     })
     prisma.$disconnect()

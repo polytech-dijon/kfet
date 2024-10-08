@@ -326,7 +326,7 @@ const EditCommandModal = ({ isOpen, onClose, onSubmit, articles, command }: Edit
         onSubmit={async () => {
           if (!title)
             return toast.error('Nom de commande requis !')
-          await onSubmit({ ...command, title, description: article ? article.name : '', status, estimated_end: null })
+          await onSubmit({ ...command, title, description: article ? article.name : '', status })
           if (!command) {
             setTitle('')
             setArticle(null)
