@@ -4,11 +4,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useSelector } from 'react-redux'
 import toast from 'react-hot-toast'
-import { RiAddLine, RiDeleteBinFill, RiEditFill, RiCheckboxCircleLine, RiTimeLine, RiFileListLine } from 'react-icons/ri'
+import { RiAddLine, RiDeleteBinFill, RiEditFill, RiCheckboxCircleLine, RiTimeLine } from 'react-icons/ri'
 import api from '../services/api'
 import Modal from '../components/Modal'
 import Select from '../components/Select'
-import { commandStatus, commandStatusNames } from '../utils/db-enum'
 import { CommandStatus, IArticle } from '../types/db'
 import type { NextPage } from 'next'
 import type { Command } from '../types/db'
@@ -181,22 +180,6 @@ const CommandsList = ({ commands }: CommandsList) => {
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-white rounded-full">
       <Image src="/kfet-king.svg" width={192} height={192} alt="" />
     </div>
-    {/* <div className="flex-1 w-full h-full grid grid-cols-2 grid-flow-row">
-      {commands.map((command) => (
-        <div key={command.id} className="flex flex-row gap-6 justify-between items-center border-gray-300 mt-5 pt-4 min-w-[16rem]">
-          <div className="flex flex-col">
-            <span className="text-xl font-semibold">{command.title}</span>
-            <span className="text-sm">{command.description}</span>
-          </div>
-          <div className="flex flex-row justify-between items-center">
-            <span className="text-sm mr-1.5 mb-0.5">{commandStatusNames[command.status]}</span>
-            {command.status === CommandStatus.DONE && <RiCheckboxCircleLine className="text-green-500" />}
-            {command.status === CommandStatus.IN_PROGRESS && <RiTimeLine className="text-yellow-500" />}
-            {command.status === CommandStatus.PENDING && <RiFileListLine className="text-gray-500" />}
-          </div>
-        </div>
-      ))}
-    </div> */}
   </div>
 }
 
@@ -326,16 +309,13 @@ type EditCommandModalProps = {
 const EditCommandModal = ({ isOpen, onClose, onSubmit, articles, command }: EditCommandModalProps) => {
   const [title, setTitle] = useState('')
   const [article, setArticle] = useState<IArticle | null>(null)
-  // const [description, setDescription] = useState('')
   const [status, setStatus] = useState<CommandStatus>(CommandStatus.PENDING)
-  // const [estimatedEnd, setEstimatedEnd] = useState<string | null>(null)
 
   useEffect(() => {
     if (!command)
       return
     setTitle(command.title || '')
     setArticle(articles.find((a) => a.name === command.description) || null)
-    // setDescription(command.description || '')
     setStatus(command.status as CommandStatus || CommandStatus.PENDING)
   }, [command])
 
@@ -383,10 +363,6 @@ const EditCommandModal = ({ isOpen, onClose, onSubmit, articles, command }: Edit
             className="w-40"
           />
         </div>
-        {/* <div className="my-3">
-          <label htmlFor="commandEstimatedEnd" className="block mb-2 text-sm font-medium text-gray-900">Date de fin estimée (optionnel) :</label>
-          <input type="number" id="commandEstimatedEnd" value={estimatedEnd || ''} onChange={(e) => setEstimatedEnd(e.target.value || null)} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-        </div> */}
       </Modal>
     </>
   )
