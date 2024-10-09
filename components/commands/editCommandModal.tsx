@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { Command, CommandStatus, IArticle } from "../../types/db";
 import Modal from '../Modal'
-import Select from "../Select";
+import {ArticlesSelector} from "./articlesSelector";
 
 
 
@@ -54,13 +54,14 @@ export const EditCommandModal = ({ isOpen, onClose, onSubmit, articles, command 
                 </div>
                 <div className="my-3">
                     <label htmlFor="commandDescription" className="block mb-2 text-sm font-medium text-gray-900">Description (optionnel) :</label>
-                    <Select
+                    <ArticlesSelector articles={articles} />
+                    {/* <Select
                         value={article}
                         setValue={setArticle}
                         values={articles}
                         accessor={(a) => !!a ? a.name + (a.favorite ? "⭐" : "") : "Nom de l'article..."}
                         className="w-72"
-                    />
+                    /> */}
                 </div>
             </Modal>
         </>
