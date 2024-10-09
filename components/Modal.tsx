@@ -61,7 +61,7 @@ const Modal = ({ isOpen, title, children, onSubmit, onCancel, cancelButton = tru
           leaveFrom="opacity-100 scale-100"
           leaveTo="opacity-0 scale-95"
         >
-          <div className="inline-block w-full max-w-md p-6 my-8 text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+          <div className="inline-block w-full max-w-xl p-6 my-8 text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
             {onCancel && (
               <div className="absolute cursor-pointer top-3 right-3 sm:top-5 sm:right-5 sm:pt-0.5">
                 <HiX className="text-xl text-gray-500 transition-colors hover:text-red-500" onClick={onCancel} />
