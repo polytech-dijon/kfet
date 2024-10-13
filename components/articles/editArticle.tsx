@@ -32,10 +32,8 @@ export function EditArticleModal({ editingArticle, setEditingArticle, updateArti
             await updateArticle({
                 id: editingArticle.id,
                 name,
-                description: editingArticle.description,
                 sell_price: sellPrice,
                 category,
-                image: editingArticle.image,
                 deleted: editingArticle.deleted,
                 favorite: editingArticle.favorite,
             })
