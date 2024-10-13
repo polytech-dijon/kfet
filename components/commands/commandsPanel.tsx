@@ -106,12 +106,12 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
                   <td className="px-6 py-4">
                     {toReadableCurrentTime(command.created_at)}
                   </td>
-                  <td className="px-6 py-1 flex gap-1.5">
-                    <button className="button" onClick={() => setEditingCommand(command)}>
+                  <td className="px-1 py-1">
+                    <button className="button inline-flex mr-2" onClick={() => setEditingCommand(command)}>
                       <RiEditFill size={20} />
                       <EditCommandModal isOpen={editingCommand?.id === command.id} command={editingCommand || {}} onClose={() => setEditingCommand(null)} onSubmit={(c) => updateCommand(c as Command)} articles={articles} />
                     </button>
-                    <button className="button red" onClick={() => deleteCommand(command)}>
+                    <button className="button red inline-flex" onClick={() => deleteCommand(command)}>
                       <RiDeleteBinFill size={20} />
                     </button>
                   </td>
