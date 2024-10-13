@@ -10,10 +10,8 @@ datasource db {
 model Article {
     id              Int      @id @default(autoincrement())
     name            String
-    description     String?
     sell_price      Decimal
     category        String
-    image           String?
     favorite        Boolean  @default(false)
     deleted         Boolean  @default(false)
 }
@@ -24,7 +22,6 @@ model Command {
     id              Int      @id @default(autoincrement())
     title           String
     description     String?
-    status          String
-    estimated_end   DateTime?
+    status          String   @default("PENDING")
     created_at      DateTime @default(now())
 }
