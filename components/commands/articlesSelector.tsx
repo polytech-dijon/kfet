@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { IArticle } from "../../types/db";
 import { categoryNames } from "../../utils/db-enum";
 import { ArticleCard } from "./articleCard";
@@ -14,6 +14,7 @@ function mapArticlesToCategories(articles: IArticle[]) {
       "Favoris",
       articles.filter((article) => article.favorite)
     );
+    articles = articles.filter((article) => !article.favorite);
   }
   categories.forEach((categorie) => {
     result.set(
@@ -39,7 +40,7 @@ const containerStyle = {
     backgroundColor: "rgba(0,0,0,.1)",
     outline: "1px solid slategrey",
   },
-  listStyle: "none",
+  listStyle: "none"
 };
 
 export const ArticlesSelector = ({ articles, commandListState }: {articles: IArticle[] | null, commandListState: CommandListState }) => {
@@ -47,18 +48,19 @@ export const ArticlesSelector = ({ articles, commandListState }: {articles: IArt
   let articleDict = mapArticlesToCategories(articles);
   return (
     <>
-      <div style={containerStyle} className="overflow-auto px-4 shadow-md">
+      <div style={containerStyle} className="overflow-auto px-4 rounded-lg border-2">
         {Array.from(articleDict.keys()).map((category) => (
           <div key={category} className="my-4">
             <h1 className="text-xl text-black opacity-30 font-bold">
               {category} ({articleDict.get(category)?.length})
             </h1>
-            <div className="flex-1 w-full h-full grid grid-cols-3 grid-flow-row relative gap-2">
+            <div className="flex-1 w-full h-full flex flex-wrap relative gap-2">
               {articleDict.get(category)?.map((article) => (
                 <ArticleCard
                   key={article.id}
                   article={article}
-                  commandListState={commandListState}
+                  inputArticleQuantity={commandListState[0].get(String(article.id))||0}
+                  setInputArticleQuantity={(qty:number)=>{commandListState[1](new Map(commandListState[0]).set(String(article.name),qty))}}
                 />
               ))}
             </div>

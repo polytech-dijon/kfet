@@ -3,8 +3,6 @@ import toast from "react-hot-toast";
 import { Command, CommandStatus, IArticle } from "../../types/db";
 import Modal from "../Modal";
 import { ArticlesSelector } from "./articlesSelector";
-import { IconButton } from "@mui/material";
-import RemoveIcon from "@mui/icons-material/Remove";
 
 type EditCommandModalProps = {
   isOpen: boolean;
@@ -95,19 +93,28 @@ export const EditCommandModal = ({
             articles={articles}
             commandListState={commandListState}
           />
-          <>
-            <h1 className="text-lg">Résumé</h1>
-            <div className="grid grid-cols-2">
-              {Array.from(commandListState[0].entries()).map(
-                ([article, quantity]) => (
-                  <p className="even:pl-4 odd:pr-4 border-r-2 even:border-r-0 border-[#00000022] flex justify-between" key={article}>
-                    <span>{article} :</span>
-                    <span>{quantity}</span>
-                  </p>
-                )
-              )}
-            </div>
-          </>
+          {commandList.size === 0 ? (
+            <p className="text-center text-gray-500">
+              Aucun article sélectionné
+            </p>
+          ) : (
+            <>
+              <h1 className="text-lg">Résumé</h1>
+              <div className="grid grid-cols-2">
+                {Array.from(commandListState[0].entries()).map(
+                  ([article, quantity]) => (
+                    quantity > 0 &&<p
+                      className="even:pl-4 odd:pr-4 border-r-2 even:border-r-0 border-[#00000022] flex justify-between"
+                      key={article}
+                    >
+                      <span>{article} :</span>
+                      <span>{quantity}</span>
+                    </p>
+                  )
+                )}
+              </div>
+            </>
+          )}
         </div>
       </Modal>
     </>
