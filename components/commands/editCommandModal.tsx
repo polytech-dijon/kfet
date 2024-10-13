@@ -100,7 +100,7 @@ export const EditCommandModal = ({
             <div className="grid grid-cols-2">
               {Array.from(commandListState[0].entries()).map(
                 ([article, quantity]) => (
-                  <p className="even:pl-4 odd:pr-4 border-r-2 even:border-r-0 border-[#00000022] flex justify-between">
+                  <p className="even:pl-4 odd:pr-4 border-r-2 even:border-r-0 border-[#00000022] flex justify-between" key={article}>
                     <span>{article} :</span>
                     <span>{quantity}</span>
                   </p>
