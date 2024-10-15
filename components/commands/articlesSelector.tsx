@@ -28,7 +28,7 @@ function mapArticlesToCategories(articles: IArticle[]) {
 type CommandListState = [Map<string, number>,Dispatch<SetStateAction<Map<string, number>>>];
 
 const containerStyle = {
-  maxHeight: "20vh",
+  maxHeight: "40vh",
   "&::-webkit-scrollbar": {
     width: "0.4em",
   },
