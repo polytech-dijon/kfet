@@ -43,6 +43,8 @@ export const EditCommandModal = ({
         isOpen={isOpen}
         onSubmit={async () => {
           if (!title) return toast.error("Nom de commande requis !");
+          if (!commandList.values().some(e => e > 0))
+            return toast.error("Aucun article sélectionné !");
           for (const [article, quantity] of commandList) {
             for (let i = 0; i < quantity; i++)
               await onSubmit({
@@ -87,13 +89,13 @@ export const EditCommandModal = ({
             htmlFor="commandDescription"
             className="block mb-2 text-sm font-medium text-gray-900"
           >
-            Description (optionnel) :
+            Description :
           </label>
           <ArticlesSelector
             articles={articles}
             commandListState={commandListState}
           />
-          {commandList.size === 0 ? (
+          {!commandList.values().some(e => e > 0) ? (
             <p className="text-center text-gray-500">
               Aucun article sélectionné
             </p>
@@ -101,9 +103,9 @@ export const EditCommandModal = ({
             <>
               <h1 className="text-lg">Résumé</h1>
               <div className="grid grid-cols-2">
-                {Array.from(commandListState[0].entries()).map(
+                {Array.from(commandList.entries()).map(
                   ([article, quantity]) => (
-                    quantity > 0 &&<p
+                    quantity > 0 && <p
                       className="even:pl-4 odd:pr-4 border-r-2 even:border-r-0 border-[#00000022] flex justify-between"
                       key={article}
                     >
