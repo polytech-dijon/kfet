@@ -16,8 +16,8 @@ export const ArticleCard = ({
   return (
     <div
       className={
-        "flex-grow flex justify-between items-center select-none px-4 py-2 rounded-lg border border-[#00000022] " +
-        (articleQuantity ? "bg-gray-200 cursor-pointer" : "")
+        "flex-grow flex justify-between items-center select-none px-4 py-2 rounded-lg border border-[#00000022] cursor-pointer " +
+        (!checked ? "bg-gray-200" : "shadow")
       }
       onClick={() => {
         setInputArticleQuantity(checked ? 0 : 1);
