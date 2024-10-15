@@ -103,11 +103,11 @@ export const EditCommandModal = ({
             <>
               <h1 className="text-lg">Résumé</h1>
               <div className="grid grid-cols-2">
-                {Array.from(commandList.entries()).map(
-                  ([article, quantity]) => (
+                { Array.from(commandList.entries()).map(
+                  ([article, quantity], index) => (
                     quantity > 0 && <p
                       className="even:pl-4 odd:pr-4 border-r-2 even:border-r-0 border-[#00000022] flex justify-between"
-                      key={article}
+                      key={index}
                     >
                       <span>{article} :</span>
                       <span>{quantity}</span>
