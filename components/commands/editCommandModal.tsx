@@ -3,6 +3,9 @@ import toast from "react-hot-toast";
 import { Command, CommandStatus, IArticle } from "../../types/db";
 import Modal from "../Modal";
 import { ArticlesSelector } from "./articlesSelector";
+import RemoveIcon from '@mui/icons-material/Remove';
+import AddIcon from '@mui/icons-material/Add';
+import { IconButton } from "@mui/material";
 
 type EditCommandModalProps = {
   isOpen: boolean;
@@ -106,11 +109,32 @@ export const EditCommandModal = ({
                 { Array.from(commandList.entries()).map(
                   ([article, quantity], index) => (
                     quantity > 0 && <p
-                      className="even:pl-4 odd:pr-4 border-r-2 even:border-r-0 border-[#00000022] flex justify-between"
+                      className="even:pl-4 odd:pr-4 border-r-2 even:border-r-0 border-[#00000022] flex justify-between items-center"
                       key={index}
                     >
-                      <span>{article} :</span>
-                      <span>{quantity}</span>
+                      <span style={{display:"block",maxWidth:"150px", textOverflow:"ellipsis", whiteSpace:"nowrap", overflow: "hidden"}}>{article}</span>
+                      <span>
+                      :
+                        <IconButton
+                          onClick={() => {
+                            setCommandList(
+                              new Map(commandList.set(article, quantity - 1))
+                            );
+                          }}
+                        >
+                          <RemoveIcon />
+                        </IconButton>
+                        {quantity}
+                        <IconButton
+                          onClick={() => {
+                            setCommandList(
+                              new Map(commandList.set(article, quantity + 1))
+                            );
+                          }}
+                        >
+                          <AddIcon />
+                        </IconButton>
+                      </span>
                     </p>
                   )
                 )}
