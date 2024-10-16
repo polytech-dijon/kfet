@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { IArticle } from "../../types/db";
 import { categoryNames } from "../../utils/db-enum";
 import { ArticleCard } from "./articleCard";
@@ -14,6 +14,7 @@ function mapArticlesToCategories(articles: IArticle[]) {
       "Favoris",
       articles.filter((article) => article.favorite)
     );
+    articles = articles.filter((article) => !article.favorite);
   }
   categories.forEach((categorie) => {
     result.set(
@@ -24,45 +25,46 @@ function mapArticlesToCategories(articles: IArticle[]) {
   return result;
 }
 
-type CommandListState = [Map<string, number>,Dispatch<SetStateAction<Map<string, number>>>];
+type CommandListState = [Map<string, number>, Dispatch<SetStateAction<Map<string, number>>>];
 
 const containerStyle = {
-  maxHeight: "20vh",
-  "&::-webkit-scrollbar": {
+  maxHeight: "40vh",
+  "&::WebkitScrollbar": {
     width: "0.4em",
   },
-  "&::-webkit-scrollbar-track": {
+  "&::WebkitScrollbarTrack": {
     boxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
     webkitBoxShadow: "inset 0 0 6px rgba(0,0,0,0.00)",
   },
-  "&::-webkit-scrollbar-thumb": {
+  "&::WebkitScrollbarThumb": {
     backgroundColor: "rgba(0,0,0,.1)",
     outline: "1px solid slategrey",
   },
-  listStyle: "none",
+  listStyle: "none"
 };
 
-export const ArticlesSelector = ({ articles, commandListState }: {articles: IArticle[] | null, commandListState: CommandListState }) => {
+export const ArticlesSelector = ({ articles, commandList, setCommandList }: { articles: IArticle[] | null, commandList: Map<string, number>, setCommandList: (commandList: Map<string, number>) => void; }) => {
   if (!articles) return <p>Chargement...</p>;
   let articleDict = mapArticlesToCategories(articles);
   return (
     <>
-      <div style={containerStyle} className="overflow-auto px-4 shadow-md">
+      <div style={containerStyle} className="overflow-auto px-4 rounded-lg border-2">
         {Array.from(articleDict.keys()).map((category) => (
-          <div key={category} className="my-4">
+          <article key={category} className="my-4">
             <h1 className="text-xl text-black opacity-30 font-bold">
               {category} ({articleDict.get(category)?.length})
             </h1>
-            <div className="flex-1 w-full h-full grid grid-cols-3 grid-flow-row relative gap-2">
+            <ul className="flex-1 w-full h-full flex flex-wrap relative gap-2">
               {articleDict.get(category)?.map((article) => (
                 <ArticleCard
                   key={article.id}
                   article={article}
-                  commandListState={commandListState}
+                  listSelected={commandList}
+                  setInputArticleQuantity={(qty: number) => setCommandList(new Map(commandList).set(String(article.name), qty))}
                 />
               ))}
-            </div>
-          </div>
+            </ul>
+          </article>
         ))}
       </div>
     </>
