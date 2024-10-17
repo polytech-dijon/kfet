@@ -1,6 +1,6 @@
 import { IconButton } from "@mui/material";
-import CheckIcon from "@mui/icons-material/check";
-import EditIcon from "@mui/icons-material/edit";
+import CheckIcon from "@mui/icons-material/Check";
+import EditIcon from "@mui/icons-material/Edit";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
 
@@ -13,7 +13,7 @@ export const CommandNameField = ({
 }) => {
   const [editMode, setEditMode] = useState(false);
   const [name, setName] = useState(currentName);
-  const saveNewFieldName = (newName: string) => {
+  const saveNewFieldName = (newName: string)=>() => {
     setNewName(newName);
     setName(newName);
     setEditMode(false);
@@ -30,14 +30,14 @@ export const CommandNameField = ({
         }}
         onKeyUp={(e) => {
           if (e.key === "Enter") {
-            saveNewFieldName(currentName);
+            saveNewFieldName(name)();
           }
         }}
       />
-      <IconButton onClick={(_) => saveNewFieldName(currentName)}>
+      <IconButton onClick={saveNewFieldName(name)}>
         <CheckIcon />
       </IconButton>
-      <IconButton onClick={(_) => saveNewFieldName(currentName)}>
+      <IconButton onClick={saveNewFieldName(currentName)}>
         <CloseIcon />
       </IconButton>
     </>
