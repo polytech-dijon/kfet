@@ -13,6 +13,9 @@ export default function StatusSelector({command, onClick} : { command : Command,
     event: React.MouseEvent<HTMLElement>,
     newStatus: CommandStatus,
   ) => {
+    if (command.status === newStatus || newStatus === null){
+      return;
+    }
     setStatus(newStatus);
     command.status = newStatus;
     onClick(command);
