@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { IArticle } from "../../types/db";
 import { categoryNames } from "../../utils/db-enum";
 import { ArticleCard } from "./articleCard";
+import { Button, TextField } from "@mui/material";
 
 function mapArticlesToCategories(articles: IArticle[]) {
   const result = new Map<string, IArticle[]>();
@@ -25,7 +26,6 @@ function mapArticlesToCategories(articles: IArticle[]) {
   return result;
 }
 
-type CommandListState = [Map<string, number>, Dispatch<SetStateAction<Map<string, number>>>];
 
 const containerStyle = {
   maxHeight: "40vh",
@@ -44,10 +44,33 @@ const containerStyle = {
 };
 
 export const ArticlesSelector = ({ articles, commandList, setCommandList }: { articles: IArticle[] | null, commandList: Map<string, number>, setCommandList: (commandList: Map<string, number>) => void; }) => {
+  const [articleDict, setArticleDict] = useState<Map<string, IArticle[]>>(mapArticlesToCategories(articles ?? []));
+  const [search, setSearch] = useState("");
+  useEffect(() => {
+    setArticleDict(mapArticlesToCategories((articles??[]).filter(filterArticles)))
+  }, [search]);
   if (!articles) return <p>Chargement...</p>;
-  let articleDict = mapArticlesToCategories(articles);
+
+  const onfilterChange = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(target.value);
+  }
+
+  const addArticle = (articleName : string) => 
+    (qty: number) => setCommandList(new Map(commandList).set(String(articleName), qty))
+  
+
+  const filterArticles = (article: IArticle) => {
+    return article.name.toLowerCase().includes(search.toLowerCase());
+  }
+
+
+
   return (
     <>
+      <div className="flex gap-2 mb-2">
+        <TextField className="grow" label="Chercher/Ajouter" variant="outlined" value={search} onChange={onfilterChange} />
+        <Button variant="contained" onClick={()=>{addArticle(search)(1);setSearch("")}}>Ajouter</Button>
+      </div>
       <div style={containerStyle} className="overflow-auto px-4 rounded-lg border-2">
         {Array.from(articleDict.keys()).map((category) => (
           <article key={category} className="my-4">
@@ -60,7 +83,7 @@ export const ArticlesSelector = ({ articles, commandList, setCommandList }: { ar
                   key={article.id}
                   article={article}
                   listSelected={commandList}
-                  setInputArticleQuantity={(qty: number) => setCommandList(new Map(commandList).set(String(article.name), qty))}
+                  setInputArticleQuantity={addArticle(article.name)}
                 />
               ))}
             </ul>
