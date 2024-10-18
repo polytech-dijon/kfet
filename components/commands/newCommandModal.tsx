@@ -7,24 +7,21 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import { IconButton } from "@mui/material";
 
-type EditCommandModalProps = {
+type NewCommandModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (command: Partial<Command>) => Promise<void>;
   articles: IArticle[];
-  command?: Partial<Command>;
 };
 
-export const EditCommandModal = ({
+export const NewCommandModal = ({
   isOpen,
   onClose,
   onSubmit,
   articles,
-  command,
-}: EditCommandModalProps) => {
+}: NewCommandModalProps) => {
   const [title, setTitle] = useState("");
-  const commandListState = useState<Map<string, number>>(new Map());
-  const [commandList, setCommandList] = commandListState;
+  const [commandList, setCommandList] = useState<Map<string, number>>(new Map());;
 
   const resetValues = () => {
     setTitle("");
@@ -38,11 +35,6 @@ export const EditCommandModal = ({
     ));
   }
 
-  useEffect(() => {
-    if (!command) return;
-    setTitle(command.title || "");
-    setCommandList(new Map().set(command.description, 1));
-  }, [command]);
 
   return (
     <Modal
@@ -54,14 +46,10 @@ export const EditCommandModal = ({
         for (const [article, quantity] of commandList) {
           for (let i = 0; i < quantity; i++)
             await onSubmit({
-              ...command,
               title,
               description: article,
-              status: command?.status ?? CommandStatus.PENDING,
+              status:  CommandStatus.PENDING,
             });
-        }
-        if (!command) {
-          setTitle("");
         }
         resetValues();
         onClose();
@@ -70,7 +58,7 @@ export const EditCommandModal = ({
         resetValues();
         onClose();
       }}
-      title={!command ? "Nouvelle commande" : "Éditer la commande"}
+      title={"Nouvelle commande"}
       submitButtonText="Sauvegarder"
     >
       <div className="my-3">
