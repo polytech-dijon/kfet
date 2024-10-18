@@ -21,8 +21,7 @@ export const NewCommandModal = ({
   articles,
 }: NewCommandModalProps) => {
   const [title, setTitle] = useState("");
-  const commandListState = useState<Map<string, number>>(new Map());
-  const [commandList, setCommandList] = commandListState;
+  const [commandList, setCommandList] = useState<Map<string, number>>(new Map());;
 
   const resetValues = () => {
     setTitle("");
