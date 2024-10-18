@@ -89,7 +89,7 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
                 <th scope="col" className="px-6 py-3 w-1/6">
                   Heure de création
                 </th>
-                <th scope="col" className="px-6 py-3 w-1/6">
+                <th scope="col" className="px-6 py-3 w-1/6 text-center">
                   Supprimer
                 </th>
               </tr>
