@@ -10,6 +10,7 @@ import { IArticle } from "../../types/db";
 import { GetArticlesResult } from "../../pages/api/articles";
 import { NewCommandModal } from "./newCommandModal";
 import { CommandNameField } from "./commandNameField";
+import { EditCommandArticleModal } from "./editCommandArticleModal";
 
 type CommandsPanelProps = {
   commands: Command[] | null;
@@ -21,6 +22,7 @@ type CommandsPanelProps = {
 export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCommand }: CommandsPanelProps) => {
   const [articles, setArticles] = useState<IArticle[] | null>(null)
   const [isNewCommandOpen, setIsNewCommandOpen] = useState(false)
+  const [isEditingCommandOpen, setIsEditingCommandOpen] = useState(false)
   const [editingCommand, setEditingCommand] = useState<Command | null>(null)
 
   /**
@@ -46,6 +48,11 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
     }
   }
 
+  const openEditArticleModal = (command: Command) => {
+    setEditingCommand(command)
+    setIsEditingCommandOpen(true)
+  }
+
   useEffect(() => {
     getArticles()
   }, [])
@@ -65,6 +72,7 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
         <span>Nouvelle commande</span>
       </button>
       <NewCommandModal isOpen={isNewCommandOpen} onClose={() => setIsNewCommandOpen(false)} onSubmit={createCommand} articles={articles} />
+      <EditCommandArticleModal isOpen={isEditingCommandOpen} onClose={() => setIsEditingCommandOpen(false)} onSubmit={updateCommand} articles={articles} command={editingCommand!} />
     </div>
     <div>
       {commands.length === 0 && (
@@ -103,9 +111,7 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
                   <td className="px-6 py-4">
                     {command.description || <span className="italic">Aucune description</span>}
                     <IconButton
-                      onClick={() => {
-                        
-                      }}
+                      onClick={() => openEditArticleModal(command)}
                     >
                       <EditIcon />
                     </IconButton>
