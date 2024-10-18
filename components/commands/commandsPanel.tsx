@@ -1,12 +1,14 @@
 import { Command } from "@prisma/client";
+import { IconButton } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import { RiAddLine, RiDeleteBinFill } from "react-icons/ri";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { RiAddLine, RiEditFill, RiDeleteBinFill } from "react-icons/ri";
 import StatusSelector from "../StatusSelector";
 import api from "../../services/api";
 import { IArticle } from "../../types/db";
 import { GetArticlesResult } from "../../pages/api/articles";
-import { EditCommandModal } from "./editCommandModal";
+import { NewCommandModal } from "./newCommandModal";
 import { CommandNameField } from "./commandNameField";
 
 type CommandsPanelProps = {
@@ -62,7 +64,7 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
         <RiAddLine />
         <span>Nouvelle commande</span>
       </button>
-      <EditCommandModal isOpen={isNewCommandOpen} onClose={() => setIsNewCommandOpen(false)} onSubmit={createCommand} articles={articles} />
+      <NewCommandModal isOpen={isNewCommandOpen} onClose={() => setIsNewCommandOpen(false)} onSubmit={createCommand} articles={articles} />
     </div>
     <div>
       {commands.length === 0 && (
@@ -88,7 +90,7 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
                   Heure de création
                 </th>
                 <th scope="col" className="px-6 py-3 w-1/6">
-                  Actions
+                  Supprimer
                 </th>
               </tr>
             </thead>
@@ -100,6 +102,13 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
                   </th>
                   <td className="px-6 py-4">
                     {command.description || <span className="italic">Aucune description</span>}
+                    <IconButton
+                      onClick={() => {
+                        
+                      }}
+                    >
+                      <EditIcon />
+                    </IconButton>
                   </td>
                   <td className="px-6 py-4">
                     <StatusSelector command={command} onClick={updateCommand} />
@@ -107,11 +116,7 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
                   <td className="px-6 py-4">
                     {toReadableCurrentTime(command.created_at)}
                   </td>
-                  <td className="px-1 py-1">
-                    <button className="button inline-flex mr-2" onClick={() => setEditingCommand(command)}>
-                      <RiEditFill size={20} />
-                      <EditCommandModal isOpen={editingCommand?.id === command.id} command={editingCommand || {}} onClose={() => setEditingCommand(null)} onSubmit={(c) => updateCommand(c as Command)} articles={articles} />
-                    </button>
+                  <td className="px-1 py-1 text-center">
                     <button className="button red inline-flex" onClick={() => deleteCommand(command)}>
                       <RiDeleteBinFill size={20} />
                     </button>
