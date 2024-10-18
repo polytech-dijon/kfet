@@ -7,6 +7,7 @@ import api from "../../services/api";
 import { IArticle } from "../../types/db";
 import { GetArticlesResult } from "../../pages/api/articles";
 import { EditCommandModal } from "./editCommandModal";
+import { CommandNameField } from "./commandNameField";
 
 type CommandsPanelProps = {
   commands: Command[] | null;
@@ -95,7 +96,7 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
               {commands.map((command, key) => (
                 <tr key={key} className="bg-white">
                   <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                    {command.title}
+                    <CommandNameField currentName={command.title} setNewName={(newName : string)=>updateCommand({...command, title : newName})}/>
                   </th>
                   <td className="px-6 py-4">
                     {command.description || <span className="italic">Aucune description</span>}
