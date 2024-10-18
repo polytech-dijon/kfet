@@ -7,6 +7,7 @@ import api from "../../services/api";
 import { IArticle } from "../../types/db";
 import { GetArticlesResult } from "../../pages/api/articles";
 import { EditCommandModal } from "./editCommandModal";
+import { DeleteModal } from "../deleteModal";
 
 type CommandsPanelProps = {
   commands: Command[] | null;
@@ -111,9 +112,7 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
                       <RiEditFill size={20} />
                       <EditCommandModal isOpen={editingCommand?.id === command.id} command={editingCommand || {}} onClose={() => setEditingCommand(null)} onSubmit={(c) => updateCommand(c as Command)} articles={articles} />
                     </button>
-                    <button className="button red inline-flex" onClick={() => deleteCommand(command)}>
-                      <RiDeleteBinFill size={20} />
-                    </button>
+                    <DeleteModal deleteItem={deleteCommand} deletingItem={command}/>
                   </td>
                 </tr>
               ))}
