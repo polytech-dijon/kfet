@@ -1,10 +1,15 @@
-import { Prisma } from '@prisma/client';
 import prisma from '../../prisma'
 import { mapPrismaItems } from '../../utils'
 import verifyJwt from '../../utils/verifyJwt'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import type { ApiResponse } from '../../types/api'
-import type { Command } from '../../types/db'
+import { CommandStatus, type Command } from '../../types/db'
+import { schedulecommandDeletion } from '../../services/commandAutoDeletion'
+
+const ONE_SECONDE = 1000
+const ONE_MINUTE = 60 * ONE_SECONDE
+
+export const TIME_BEFORE_DELETION = ONE_MINUTE * 5 // 5 minutes
 
 export type GetCommandResult = {
   commands: Command[];
@@ -54,6 +59,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     const { command }: PutCommandBody = req.body.data
     if (!command)
       return res.status(400).json({ ok: false, error: 'Invalid data' })
+    let expires_at = null
+    if (command.status === CommandStatus.DONE) {
+      expires_at = new Date(Date.now() + TIME_BEFORE_DELETION);
+      schedulecommandDeletion(command.id, expires_at);
+    }
 
     await prisma.command.update({
       where: {
@@ -62,7 +72,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       data: {
         title: command.title,
         description: command.description,
-        status: command.status
+        status: command.status,
+        expires_at: command.status == CommandStatus.DONE ? expires_at : null,
       },
     })
     prisma.$disconnect()

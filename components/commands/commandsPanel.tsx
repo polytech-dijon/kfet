@@ -8,6 +8,7 @@ import { IArticle } from "../../types/db";
 import { GetArticlesResult } from "../../pages/api/articles";
 import { EditCommandModal } from "./editCommandModal";
 import { CommandNameField } from "./commandNameField";
+import { Countdown } from "../CountDown";
 
 type CommandsPanelProps = {
   commands: Command[] | null;
@@ -88,6 +89,9 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
                   Heure de création
                 </th>
                 <th scope="col" className="px-6 py-3 w-1/6">
+                  Temps avant suppression
+                </th>
+                <th scope="col" className="px-6 py-3 w-1/6">
                   Actions
                 </th>
               </tr>
@@ -106,6 +110,12 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
                   </td>
                   <td className="px-6 py-4">
                     {toReadableCurrentTime(command.created_at)}
+                  </td>
+                  <td className="px-6 py-4">
+                    {
+                      command.expires_at === null ? <span className="italic">Aucune suppression planifiée</span> :
+                        <Countdown initialSeconds={(command.expires_at as unknown as number)- Date.now()} />
+                    }
                   </td>
                   <td className="px-1 py-1">
                     <button className="button inline-flex mr-2" onClick={() => setEditingCommand(command)}>

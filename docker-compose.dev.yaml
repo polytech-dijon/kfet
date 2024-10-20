@@ -9,24 +9,37 @@ services:
       - "5432:5432"
     networks:
       - kfet-network
-
+  cache:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes: 
+      - redis-socket:/var/run/redis
+      - ./redis.conf:/etc/redis/redis.conf
+      - cache:/data
+    command: ["/bin/sh", "-c",  "chown -R redis /var/run/redis/ && redis-server /etc/redis/redis.conf"]
   app:
     container_name: kfet-app
     image: node:18-bullseye
     working_dir: /app
     volumes:
       - ./:/app
+      - redis-socket:/var/run/redis
     command: sh -c "npm install && npx prisma generate && npm run db:deploy && npm run db:seed && npm run dev"
     ports:
       - "3000:3000"
     env_file: ".env"
     depends_on:
       - db
+      - cache
     networks:
       - kfet-network
 
 volumes:
   postgres_data:
+  cache:
+  redis-socket:
 
 networks:
   kfet-network:
