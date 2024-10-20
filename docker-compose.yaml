@@ -26,7 +26,9 @@ services:
       - db
     networks:
       - kfet-network
-
+    volumes: 
+      - cache:/data
+      - redis-socket:/tmp/redis.sock
 volumes:
   postgres_data:
 
