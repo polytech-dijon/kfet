@@ -127,7 +127,7 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
                   <td className="px-6 py-4">
                     À {toReadableCurrentTime(command.created_at)}
                     <br />
-                    Il y a <Timer acceptable_wait_time={5} long_wait_time={20} time_elapsed={Math.floor((Date.now() - (command.created_at as unknown as number))/1000)} />
+                    Il y a <Timer acceptable_wait_time={15} long_wait_time={20} created_at={command.created_at as unknown as number} />
                   </td>
                   <td className="px-6 py-4">
                     {

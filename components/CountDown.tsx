@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { ONE_SECOND } from "../utils/const";
 
-const ONE_SECOND = 1000;
 
 export const Countdown = ({ initialSeconds }: { initialSeconds: number }) => {
   const [seconds, setSeconds] = useState((initialSeconds-(initialSeconds % ONE_SECOND)) / ONE_SECOND);
