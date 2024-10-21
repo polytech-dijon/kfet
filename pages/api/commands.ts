@@ -5,10 +5,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import type { ApiResponse } from '../../types/api'
 import { CommandStatus, type Command } from '../../types/db'
 import { schedulecommandDeletion } from '../../services/commandAutoDeletion'
-import { ONE_MINUTE } from '../../utils/const'
-
-
-export const TIME_BEFORE_DELETION = ONE_MINUTE * 5 // 5 minutes
+import { TIME_BEFORE_DELETION } from '../../utils/const'
 
 export type GetCommandResult = {
   commands: Command[];
