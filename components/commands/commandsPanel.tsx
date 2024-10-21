@@ -12,6 +12,7 @@ import { NewCommandModal } from "./newCommandModal";
 import { CommandNameField } from "./commandNameField";
 import { Countdown } from "../CountDown";
 import { EditCommandArticleModal } from "./editCommandArticleModal";
+import { Timer } from "../Timer";
 
 type CommandsPanelProps = {
   commands: Command[] | null;
@@ -56,7 +57,7 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
 
   useEffect(() => {
     getArticles()
-  }, [])
+  }, [commands])
 
   if (!commands || !articles) {
     return <>
@@ -124,7 +125,9 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
                     <StatusSelector command={command} onClick={updateCommand} />
                   </td>
                   <td className="px-6 py-4">
-                    {toReadableCurrentTime(command.created_at)}
+                    À {toReadableCurrentTime(command.created_at)}
+                    <br />
+                    Il y a <Timer acceptable_wait_time={5} long_wait_time={20} time_elapsed={Math.floor((Date.now() - (command.created_at as unknown as number))/1000)} />
                   </td>
                   <td className="px-6 py-4">
                     {
