@@ -21,7 +21,8 @@ model Article {
 model Command {
     id              Int      @id @default(autoincrement())
     title           String
-    description     String?
+    description     String
     status          String   @default("PENDING")
     created_at      DateTime @default(now())
+    expires_at      DateTime?
 }

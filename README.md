@@ -58,9 +58,60 @@ Pour déployer les migrations sur la base de données, il faut utiliser la comma
 
     yarn prisma migrate deploy
 
+## Détails de fonctionnalitées spécifiques
+
+### Suppression des commandes en status `DONE`
+
+La suppression automatique est un processus compliqué prompt au bug. Son comportement fonctionnel attendu est défini tel que :
+    
+    En tant que membre de la Kfet, je souhaite que quand je mets une commande dans l'état `Done`, alors celle-ci est supprimée après N minutes sans autre interventions utilisateurs, afin de réduire la charge mental des membres de le Kfet.
+
+
+```mermaid
+sequenceDiagram
+    participant M as Membre de la kfet
+    participant I as Kfet interface
+    participant B as Kfet backend
+    participant D as Kfet database
+    M->>I: Update commande.status = DONE
+    I->>+B: Update commande.status = DONE
+    B->>-I: Ok
+    Note over B: Wait for n minutes
+    loop Every minute
+        I-->I: Reload les commandes
+    end
+    B->>D: DELETE FROM commande WHERE id = commande.status;
+```
+
+Sachant qu'il faut prendre en compte le fait que une commande peut retourner à un état précédent, et devrait dans ce cas être retirée des listes. Et que lors du redémarrage du serveur (e.g : si plantage en prod ou mise à jour), les lignes concernées soient biens mises comme devant être supprimées.
+
+
+```mermaid
+sequenceDiagram
+    participant M as Membre de la kfet
+    participant I as Kfet interface
+    participant B as Kfet backend
+    participant D as Kfet database
+    M->>I: Update commande.status = DONE
+    I->>+B: Update commande.status = DONE
+    B->>-I: Ok
+    Note over B: Wait for n minutes
+    M->>I: Update commande.status = IN_PROGRESS
+    I->>+B: Update commande.status = IN_PROGRESS
+    B->>-I: Ok
+    Note over B: Cancels deletion order
+    loop Every minute
+        I-->I: Reload les commandes
+    end
+```
+
+Pour le point des lignes à prendre en compte même quand plantage, pour le moment, pas de solutions misent en place. Les lignes sont marquées comme "deleted" en front et nécessitent une suppression manuel.
+
 ## Crédits
 
 - [**Gauthier THOMAS**](https://github.com/gauthier-th) : création du projet
+- [**Arno BIDET**](https://github.com/ArnoBidet) : reprise du projet, passage à Docker, chantier de modification d'octobre 2024
+- [**Ewan VIDAL**](https://github.com/ewanvidal) : contribution au chantier de modification d'octobre 2024
 
 ## Licence
 

@@ -10,7 +10,9 @@ import { IArticle } from "../../types/db";
 import { GetArticlesResult } from "../../pages/api/articles";
 import { NewCommandModal } from "./newCommandModal";
 import { CommandNameField } from "./commandNameField";
+import { Countdown } from "../CountDown";
 import { EditCommandArticleModal } from "./editCommandArticleModal";
+import { Timer } from "../Timer";
 
 type CommandsPanelProps = {
   commands: Command[] | null;
@@ -55,7 +57,7 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
 
   useEffect(() => {
     getArticles()
-  }, [])
+  }, [commands])
 
   if (!commands || !articles) {
     return <>
@@ -97,7 +99,10 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
                 <th scope="col" className="px-6 py-3 w-1/6">
                   Heure de création
                 </th>
-                <th scope="col" className="px-6 py-3 w-1/6 text-center">
+                <th scope="col" className="px-6 py-3 w-1/6">
+                  Temps avant suppression
+                </th>
+                <th scope="col" className="px-6 py-3 w-1/6">
                   Supprimer
                 </th>
               </tr>
@@ -120,7 +125,15 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
                     <StatusSelector command={command} onClick={updateCommand} />
                   </td>
                   <td className="px-6 py-4">
-                    {toReadableCurrentTime(command.created_at)}
+                    À {toReadableCurrentTime(command.created_at)}
+                    <br />
+                    Il y a <Timer acceptable_wait_time={15} long_wait_time={20} created_at={command.created_at as unknown as number} />
+                  </td>
+                  <td className="px-6 py-4">
+                    {
+                      command.expires_at === null ? <span className="italic">Aucune suppression planifiée</span> :
+                        <Countdown initialSeconds={(command.expires_at as unknown as number)- Date.now()} />
+                    }
                   </td>
                   <td className="px-1 py-1 text-center">
                     <button className="button red inline-flex" onClick={() => deleteCommand(command)}>

@@ -2,7 +2,7 @@ import { IconButton } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import EditIcon from "@mui/icons-material/Edit";
 import CloseIcon from "@mui/icons-material/Close";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const CommandNameField = ({
   currentName,
@@ -13,6 +13,10 @@ export const CommandNameField = ({
 }) => {
   const [editMode, setEditMode] = useState(false);
   const [name, setName] = useState(currentName);
+  useEffect(() => {
+    setName(currentName);
+  }
+  , [currentName]);
   const saveNewFieldName = (newName: string)=>() => {
     setNewName(newName);
     setName(newName);
