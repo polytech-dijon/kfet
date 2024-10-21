@@ -10,13 +10,13 @@ services:
     networks:
       - kfet-network
   cache:
-    image: redis:6.2-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.redis
     restart: always
     volumes: 
       - redis-socket:/var/run/redis
-      - ./redis.conf:/etc/redis/redis.conf
       - cache:/data
-    command: ["/bin/sh", "-c",  "chown -R redis /var/run/redis/ && redis-server /etc/redis/redis.conf"]
   app:
     container_name: kfet-app
     build:
