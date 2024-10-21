@@ -10,8 +10,8 @@ import type { IArticle } from '../types/db'
 import type { ApiRequest } from '../types/api'
 import type { DeleteArticlesBody, DeleteArticlesResult, GetArticlesResult, PostArticlesBody, PostArticlesResult, PutArticlesBody, PutArticlesResult } from './api/articles'
 import { EditArticleModal } from '../components/articles/editArticle'
-import { DeleteArticleModal } from '../components/articles/deleteArticle'
 import { CreateArticleModal } from '../components/articles/createArticle'
+import { DeleteModal } from '../components/deleteModal'
 
 const Articles: NextPage = () => {
   const [articles, setArticles] = useState<IArticle[]>([])
@@ -136,9 +136,7 @@ const Articles: NextPage = () => {
                         <button className="button" onClick={() => setEditingArticle(article)}>
                           <RiEditFill size={20} />
                         </button>
-                        <button className="button red ml-3" onClick={() => setDeletingArticle(article)}>
-                          <RiDeleteBinFill size={20} />
-                        </button>
+                        <DeleteModal deleteItem={deleteArticle} deletingItem={article}/>
                         <button className="button-outline ml-3" onClick={() => setFavoriteArticle(article)}>
                           {article.favorite ?
                           <RiStarFill size={20} fill='rgb(250 204 21)'/>
@@ -156,7 +154,6 @@ const Articles: NextPage = () => {
         )}
       </div>
       <EditArticleModal editingArticle={editingArticle} setEditingArticle={setEditingArticle} updateArticle={updateArticle} />
-      <DeleteArticleModal deletingArticle={deletingArticle} setDeletingArticle={setDeletingArticle} deleteArticle={deleteArticle} />
       <CreateArticleModal createArticleOpen={createArticleOpen} setCreateModalOpen={setCreateModalOpen} createArticle={createArticle} />
     </>
   )
