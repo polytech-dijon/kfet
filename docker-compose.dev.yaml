@@ -11,9 +11,6 @@ services:
       - kfet-network
   cache:
     image: redis:6.2-alpine
-    restart: always
-    ports:
-      - '6379:6379'
     volumes: 
       - redis-socket:/var/run/redis
       - ./redis.conf:/etc/redis/redis.conf
