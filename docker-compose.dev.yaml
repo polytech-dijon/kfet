@@ -5,8 +5,7 @@ services:
     env_file: ".env"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+      - pg-socket:/var/run/postgresql
     networks:
       - kfet-network
   cache:
@@ -23,6 +22,7 @@ services:
     volumes:
       - ./:/app
       - redis-socket:/var/run/redis
+      - pg-socket:/var/run/postgresql
     command: sh -c "npm install && npx prisma generate && npm run db:deploy && npm run db:seed && npm run dev"
     ports:
       - "3000:3000"
@@ -35,8 +35,13 @@ services:
 
 volumes:
   postgres_data:
+    name: kfet-postgres-data
   cache:
+    name: kfet-cache
   redis-socket:
+    name: kfet-redis-socket
+  pg-socket:
+    name: kfet-pg-socket
 
 networks:
   kfet-network:
