@@ -137,9 +137,6 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
                     }
                   </td>
                   <td className="px-1 py-1 text-center">
-                    <button className="button red inline-flex" onClick={() => deleteCommand(command)}>
-                      <RiDeleteBinFill size={20} />
-                    </button>
                     <DeleteModal deleteItem={deleteCommand} deletingItem={command}/>
                   </td>
                 </tr>
