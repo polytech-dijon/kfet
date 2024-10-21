@@ -22,7 +22,7 @@ export const Timer = ({ acceptable_wait_time, long_wait_time, created_at }: { ac
   }, [created_at, seconds]);
 
   const format = (seconds: number) => {
-    return seconds / 60 > 1 ? `${Math.floor(seconds / 60)}m ${seconds % 60}s` : `${seconds % 60}s`;
+    return (seconds / 60) >= 1 ? `${Math.floor(seconds / 60)}m ${seconds % 60}s` : `${seconds % 60}s`;
   }
 
   const processClass = (seconds: number) => {

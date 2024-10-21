@@ -13,7 +13,7 @@ export const Countdown = ({ initialSeconds }: { initialSeconds: number }) => {
   }, [seconds]);
 
   const format = (seconds : number)=>{
-    return seconds / 60 > 1 ? `${Math.floor(seconds / 60)}m ${seconds % 60}s` : `${seconds % 60}s`;
+    return (seconds / 60) >= 1 ? `${Math.floor(seconds / 60)}m ${seconds % 60}s` : `${seconds % 60}s`;
   }
 
   const processClass = (seconds : number)=>{
