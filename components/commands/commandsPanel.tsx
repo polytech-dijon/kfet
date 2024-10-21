@@ -1,12 +1,18 @@
 import { Command } from "@prisma/client";
+import { IconButton } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import { RiAddLine, RiDeleteBinFill } from "react-icons/ri";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { RiAddLine, RiEditFill, RiDeleteBinFill } from "react-icons/ri";
 import StatusSelector from "../StatusSelector";
 import api from "../../services/api";
 import { IArticle } from "../../types/db";
 import { GetArticlesResult } from "../../pages/api/articles";
-import { EditCommandModal } from "./editCommandModal";
+import { NewCommandModal } from "./newCommandModal";
+import { CommandNameField } from "./commandNameField";
+import { Countdown } from "../CountDown";
+import { EditCommandArticleModal } from "./editCommandArticleModal";
+import { Timer } from "../Timer";
 import { DeleteModal } from "../deleteModal";
 
 type CommandsPanelProps = {
@@ -19,6 +25,7 @@ type CommandsPanelProps = {
 export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCommand }: CommandsPanelProps) => {
   const [articles, setArticles] = useState<IArticle[] | null>(null)
   const [isNewCommandOpen, setIsNewCommandOpen] = useState(false)
+  const [isEditingCommandOpen, setIsEditingCommandOpen] = useState(false)
   const [editingCommand, setEditingCommand] = useState<Command | null>(null)
 
   /**
@@ -44,9 +51,14 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
     }
   }
 
+  const openEditArticleModal = (command: Command) => {
+    setEditingCommand(command)
+    setIsEditingCommandOpen(true)
+  }
+
   useEffect(() => {
     getArticles()
-  }, [])
+  }, [commands])
 
   if (!commands || !articles) {
     return <>
@@ -62,7 +74,8 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
         <RiAddLine />
         <span>Nouvelle commande</span>
       </button>
-      <EditCommandModal isOpen={isNewCommandOpen} onClose={() => setIsNewCommandOpen(false)} onSubmit={createCommand} articles={articles} />
+      <NewCommandModal isOpen={isNewCommandOpen} onClose={() => setIsNewCommandOpen(false)} onSubmit={createCommand} articles={articles} />
+      <EditCommandArticleModal isOpen={isEditingCommandOpen} onClose={() => setIsEditingCommandOpen(false)} onSubmit={updateCommand} articles={articles} command={editingCommand!} />
     </div>
     <div>
       {commands.length === 0 && (
@@ -88,7 +101,10 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
                   Heure de création
                 </th>
                 <th scope="col" className="px-6 py-3 w-1/6">
-                  Actions
+                  Temps avant suppression
+                </th>
+                <th scope="col" className="px-6 py-3 w-1/6">
+                  Supprimer
                 </th>
               </tr>
             </thead>
@@ -96,21 +112,33 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
               {commands.map((command, key) => (
                 <tr key={key} className="bg-white">
                   <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                    {command.title}
+                    <CommandNameField currentName={command.title} setNewName={(newName : string)=>updateCommand({...command, title : newName})}/>
                   </th>
                   <td className="px-6 py-4">
                     {command.description || <span className="italic">Aucune description</span>}
+                    <IconButton
+                      onClick={() => openEditArticleModal(command)}
+                    >
+                      <EditIcon />
+                    </IconButton>
                   </td>
                   <td className="px-6 py-4">
                     <StatusSelector command={command} onClick={updateCommand} />
                   </td>
                   <td className="px-6 py-4">
-                    {toReadableCurrentTime(command.created_at)}
+                    À {toReadableCurrentTime(command.created_at)}
+                    <br />
+                    Il y a <Timer acceptable_wait_time={15} long_wait_time={20} created_at={command.created_at as unknown as number} />
                   </td>
-                  <td className="px-1 py-1">
-                    <button className="button inline-flex mr-2" onClick={() => setEditingCommand(command)}>
-                      <RiEditFill size={20} />
-                      <EditCommandModal isOpen={editingCommand?.id === command.id} command={editingCommand || {}} onClose={() => setEditingCommand(null)} onSubmit={(c) => updateCommand(c as Command)} articles={articles} />
+                  <td className="px-6 py-4">
+                    {
+                      command.expires_at === null ? <span className="italic">Aucune suppression planifiée</span> :
+                        <Countdown initialSeconds={(command.expires_at as unknown as number)- Date.now()} />
+                    }
+                  </td>
+                  <td className="px-1 py-1 text-center">
+                    <button className="button red inline-flex" onClick={() => deleteCommand(command)}>
+                      <RiDeleteBinFill size={20} />
                     </button>
                     <DeleteModal deleteItem={deleteCommand} deletingItem={command}/>
                   </td>

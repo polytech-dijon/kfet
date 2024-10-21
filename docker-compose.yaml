@@ -2,19 +2,28 @@ services:
   db:
     container_name: kfet-db
     image: postgres:15-alpine
+    restart: always
+    env_file: ".env"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    env_file: ".env"
     ports:
       - "5432:5432"
     networks:
       - kfet-network
-
+  cache:
+    image: redis:6.2-alpine
+    restart: always
+    volumes: 
+      - redis-socket:/var/run/redis
+      - ./redis.conf:/etc/redis/redis.conf
+      - cache:/data
+    command: ["/bin/sh", "-c",  "chown -R redis /var/run/redis/ && redis-server /etc/redis/redis.conf"]
   app:
     container_name: kfet-app
     build:
       context: .
       dockerfile: Dockerfile.app
+    restart: always
     working_dir: /app
     env_file: ".env"
     command: sh -c "npm install && npm run db:deploy && npm run build && npm run start"
@@ -26,9 +35,12 @@ services:
       - db
     networks:
       - kfet-network
-
+    volumes: 
+      - redis-socket:/var/run/redis
 volumes:
   postgres_data:
+  cache:
+  redis-socket:
 
 networks:
   kfet-network:
