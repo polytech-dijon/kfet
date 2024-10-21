@@ -6,6 +6,7 @@ services:
     env_file: ".env"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - pg-socket:/var/run/postgresql
     ports:
       - "5432:5432"
     networks:
@@ -37,10 +38,16 @@ services:
       - kfet-network
     volumes: 
       - redis-socket:/var/run/redis
+      - pg-socket:/var/run/postgresql
 volumes:
   postgres_data:
+    name: kfet-postgres-data
   cache:
+    name: kfet-cache
   redis-socket:
+    name: kfet-redis-socket
+  pg-socket:
+    name: kfet-pg-socket
 
 networks:
   kfet-network:
