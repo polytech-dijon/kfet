@@ -133,7 +133,7 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
                   <td className="px-6 py-4">
                     {
                       command.expires_at === null ? <span className="italic">Aucune suppression planifiée</span> :
-                        <Countdown initialSeconds={(command.expires_at as unknown as number)- Date.now()} />
+                        <Countdown initialSeconds={command.expires_at as unknown as number} />
                     }
                   </td>
                   <td className="px-1 py-1 text-center">
