@@ -22,6 +22,7 @@ export const NewCommandModal = ({
 }: NewCommandModalProps) => {
   const [title, setTitle] = useState("");
   const [commandList, setCommandList] = useState<Map<string, number>>(new Map());;
+  const [submitLock, setSubmitLock] = useState(false);
 
   const resetValues = () => {
     setTitle("");
@@ -40,19 +41,25 @@ export const NewCommandModal = ({
     <Modal
       isOpen={isOpen}
       onSubmit={async () => {
-        if (!title) return toast.error("Nom de commande requis !");
-        if (!commandList.values().some(e => e > 0))
-          return toast.error("Aucun article sélectionné !");
-        for (const [article, quantity] of commandList) {
-          for (let i = 0; i < quantity; i++)
-            await onSubmit({
-              title,
-              description: article,
-              status:  CommandStatus.PENDING,
-            });
+        if (submitLock) return;
+        setSubmitLock(true);
+        try {
+          if (!title) return toast.error("Nom de commande requis !");
+          if (!commandList.values().some(e => e > 0))
+            return toast.error("Aucun article sélectionné !");
+          for (const [article, quantity] of commandList) {
+            for (let i = 0; i < quantity; i++)
+              await onSubmit({
+                title,
+                description: article,
+                status:  CommandStatus.PENDING,
+              });
+          }
+          resetValues();
+          onClose();
+        } finally {
+          setSubmitLock(false);
         }
-        resetValues();
-        onClose();
       }}
       onCancel={() => {
         resetValues();
