@@ -1,0 +1,18 @@
+root = true
+
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+end_of_line = lf
+
+[{*.ts,*.tsx,docker-compose*,*.config.js}]
+indent_size = 2
+
+[{package.json,tsconfig.json,.eslintrc.json,globals.css}]
+indent_size = 2
+
+[{prisma/migrations/*.sql}]
+indent_size = unset
