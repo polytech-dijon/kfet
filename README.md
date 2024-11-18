@@ -18,15 +18,11 @@ Installer les dépendances Node.js :
     yarn
 
 Créer un fichier .env dans le dossier server et copier le contenu du fichier .env.example dans ce fichier. Modifier les variables d'environnement pour correspondre à votre configuration. Voici l'explication de chaque variable :
-- `NEXT_PUBLIC_APP_BASE_URL` : l'adresse du domaine sur lequel le site sera accessible (dans notre cas `https://kfet.bde-esirem.fr`)
+- `NEXT_PUBLIC_APP_BASE_URL` : l'adresse du domaine sur lequel le site sera accessible (dans notre cas `https://kfet.bde-polytech-dijon.com/`)
 - `JWT_SECRET` : 
 - `DATABASE_URL` : adresse de la base de données (sous la forme `postgresql://USER:PASSWORD@HOST:PORT/DATABASE`)
 - `LOGIN_PASSWORD` : mot de passe pour accéder au site de la KFET
-- `ESIPAY_API_URL` : adresse de l'API ESIPAY (dans notre cas `https://esipay.bde-esirem.fr`)
-- `ESIPAY_API_KEY` : clé d'API pour ESIPAY
-- `ESIPAY_PAYMENT_RECEIVER_ID` : identifiant de la personne recevant les paiements au nom de la KFET
-- `ESIPAY_PASSWORD` : mot de passe pour accéder à la page d'ESIPAY sur le site de la KFET
-
+- 
 Pour lancer en mode développement (le panel d'administration et le client web ne peuvent pas être utilisés simultanément en mode développement) :
 
     yarn dev

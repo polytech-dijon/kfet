@@ -37,7 +37,6 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     (async () => {
-      // await esipay.start()
       if (accessToken) {
         api.setToken(accessToken)
         try {
