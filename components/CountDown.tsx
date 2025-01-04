@@ -1,23 +1,45 @@
 import React, { useState, useEffect } from "react";
 import { ONE_SECOND } from "../utils/const";
 
-
 export const Countdown = ({ initialSeconds }: { initialSeconds: number }) => {
-  const [seconds, setSeconds] = useState((initialSeconds-(initialSeconds % ONE_SECOND)) / ONE_SECOND);
+  const [seconds, setSeconds] = useState(initialSeconds);
+  const [isDeleted, setIsDeleted] = useState(false);
 
   useEffect(() => {
-    if (seconds > 0) {
-      const timerId = setTimeout(() => setSeconds(seconds - 1), ONE_SECOND);
-      return () => clearTimeout(timerId); // Cleanup timer
+    if (seconds !== initialSeconds) {
+      setSeconds(initialSeconds);
+      setIsDeleted(false);
     }
+  }, [initialSeconds]);
+
+  useEffect(() => {
+    if (seconds <= 0) {
+      setIsDeleted(true);
+      return;
+    }
+
+    const timerId = setInterval(() => {
+      setSeconds((prev) => Math.max(prev - ONE_SECOND, 0));
+    }, 1000);
+
+    return () => clearInterval(timerId);
   }, [seconds]);
 
-  const format = (seconds : number)=>{
-    return (seconds / 60) >= 1 ? `${Math.floor(seconds / 60)}m ${seconds % 60}s` : `${seconds % 60}s`;
+  if (isDeleted) {
+    return <span className="text-red-600">Deleted</span>;
   }
 
-  const processClass = (seconds : number)=>{
-    return seconds >30 ? "text-green-600" : seconds > 60 ? "text-yellow-600" : "text-red-600";
-  }
-  return <span className={processClass(seconds)}> {seconds > 0 ? format(seconds) : "Deleted"}</ span>;
+  return (
+    <span
+      className={
+        seconds > 30
+          ? "text-green-600"
+          : seconds > 10
+          ? "text-yellow-600"
+          : "text-red-600"
+      }
+    >
+      {seconds > 0 ? `${Math.floor(seconds / 60)}m ${seconds % 60}s` : "Deleted"}
+    </span>
+  );
 };
