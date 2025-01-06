@@ -3,6 +3,7 @@ import { RiAddLine } from "react-icons/ri";
 import { useState } from "react";
 import { NewCommandModal } from "./newCommandModal";
 import { CommandsTable } from "./commandTable";
+import { CommandStatus } from "../../types/db";
 
 type CommandsPanelProps = {
   commands: Command[] | null;
@@ -28,18 +29,31 @@ export const CommandsPanel = ({ commands, createCommand, deleteCommand, updateCo
         <RiAddLine />
         <span>Nouvelle commande</span>
       </button>
-      <NewCommandModal isOpen={isNewCommandOpen} onClose={() => setIsNewCommandOpen(false)} onSubmit={createCommand}/>
+      <NewCommandModal isOpen={isNewCommandOpen} onClose={() => setIsNewCommandOpen(false)} onSubmit={createCommand} />
     </div>
-    <div>
+    <div className="flex justify-center flex-col gap-4">
       {commands.length === 0 && (
-        <div className="flex justify-center">
+        <p>
           Aucune commande trouvée.
-        </div>
+        </p>
       )}
       {commands.length > 0 && (
-        <div className="flex justify-center relative overflow-x-auto shadow-md sm:rounded-lg w-full">
-          <CommandsTable commands={commands} updateCommand={updateCommand} deleteCommand={deleteCommand}/>
-        </div>
+        <>
+          <h2 className="text-2xl font-semibold">Commandes</h2>
+          <CommandsTable commands={commands.filter(e => e.status !== CommandStatus.DONE)} updateCommand={updateCommand} deleteCommand={deleteCommand} />
+          {commands.filter(e => e.status === CommandStatus.DONE).length > 0 && (
+            <>
+              <h2 className="text-2xl font-semibold">Commandes terminées</h2>
+              <CommandsTable commands={commands.filter(e => e.status === CommandStatus.DONE)} updateCommand={updateCommand} deleteCommand={deleteCommand} />
+            </>
+          )}
+          {commands.filter(e => e.status === CommandStatus.DONE).length === 0 && (
+            <>
+              <h2 className="text-2xl font-semibold">Commandes terminées</h2>
+              <p className="text-center opacity-50"> Aucune commande terminée.</p>
+            </>
+          )}
+        </>
       )}
     </div>
   </>

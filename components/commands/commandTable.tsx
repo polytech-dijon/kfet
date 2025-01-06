@@ -38,7 +38,7 @@ export const CommandsTable = ({ commands, deleteCommand, updateCommand }: Comman
 
     return <>
         <EditCommandArticleModal isOpen={isEditingCommandOpen} onClose={() => setIsEditingCommandOpen(false)} onSubmit={updateCommand} command={editingCommand!} />
-        <table className="w-full text-sm text-left text-gray-500">
+        <table className="w-full text-sm text-left text-gray-500 shadow-md sm:rounded-lg">
             <thead className="text-sm text-gray-700 uppercase bg-gray-50">
                 <tr>
                     <th scope="col" className="px-6 py-3 w-1/6">
