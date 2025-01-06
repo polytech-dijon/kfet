@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { Command, CommandStatus, IArticle } from "../../types/db";
 import Modal from "../Modal";
@@ -6,20 +6,21 @@ import { ArticlesSelector } from "./articlesSelector";
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import { IconButton } from "@mui/material";
+import { GetArticlesResult } from "../../pages/api/articles";
+import API from "../../services/api";
 
 type NewCommandModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (command: Partial<Command>) => Promise<void>;
-  articles: IArticle[];
 };
 
 export const NewCommandModal = ({
   isOpen,
   onClose,
-  onSubmit,
-  articles,
+  onSubmit
 }: NewCommandModalProps) => {
+  const [articles, setArticles] = useState<IArticle[] | null>(null)
   const [title, setTitle] = useState("");
   const [commandList, setCommandList] = useState<Map<string, number>>(new Map());;
   const [submitLock, setSubmitLock] = useState(false);
@@ -36,31 +37,45 @@ export const NewCommandModal = ({
     ));
   }
 
+  async function getArticles() {
+    try {
+      const { data } = await API.get<GetArticlesResult>('/api/articles')
+      data.articles.sort((a, b) => a.favorite === b.favorite ? 0 : a.favorite ? -1 : 1)
+      setArticles(data.articles)
+    }
+    catch {
+      toast.error('Une erreur est survenue')
+    }
+  }
+
+  async function onSubmitModal(){
+    if (submitLock) return;
+    setSubmitLock(true);
+    try {
+      if (!title) return toast.error("Nom de commande requis !");
+      if (!commandList.values().some(e => e > 0))
+        return toast.error("Aucun article sélectionné !");
+      for (const [article, quantity] of commandList) {
+        for (let i = 0; i < quantity; i++)
+          await onSubmit({
+            title,
+            description: article,
+            status:  CommandStatus.PENDING,
+          });
+      }
+      resetValues();
+      onClose();
+    } finally {
+      setSubmitLock(false);
+    }
+  }
+
+  getArticles()
 
   return (
     <Modal
       isOpen={isOpen}
-      onSubmit={async () => {
-        if (submitLock) return;
-        setSubmitLock(true);
-        try {
-          if (!title) return toast.error("Nom de commande requis !");
-          if (!commandList.values().some(e => e > 0))
-            return toast.error("Aucun article sélectionné !");
-          for (const [article, quantity] of commandList) {
-            for (let i = 0; i < quantity; i++)
-              await onSubmit({
-                title,
-                description: article,
-                status:  CommandStatus.PENDING,
-              });
-          }
-          resetValues();
-          onClose();
-        } finally {
-          setSubmitLock(false);
-        }
-      }}
+      onSubmit={onSubmitModal}
       onCancel={() => {
         resetValues();
         onClose();
