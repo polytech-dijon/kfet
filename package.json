@@ -1,9 +1,9 @@
 {
   "name": "kfet",
   "author": {
-    "name": "gauthier-th",
-    "email": "mail@gauthierth.fr",
-    "url": "https://github.com/gauthier-th"
+    "name": "PolyBytes",
+    "email": "dev.polytechdijon@gmail.com",
+    "url": "https://github.com/polytech-dijon"
   },
   "private": true,
   "scripts": {
