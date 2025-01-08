@@ -10,7 +10,7 @@ import type { ApiRequest } from '../types/api'
 import type { RootState } from '../redux/store'
 import type { DeleteCommandBody, DeleteCommandResult, GetCommandResult, PostCommandBody, PostCommandResult, PutCommandBody, PutCommandResult } from './api/commands'
 import { CommandsPanel } from '../components/commands/commandsPanel'
-import { CommandsList } from '../components/commands/commandList'
+import { CommandsDisplay } from '../components/commands/commandsDisplay/commandsDisplay'
 
 
 const Commands: NextPage = () => {
@@ -102,7 +102,7 @@ const Commands: NextPage = () => {
             </button>
           </>}
           {commandsListOpen && <div className="fixed top-0 left-0 right-0 w-screen h-screen bg-background-light grow flex flex-col justify-center items-center z-30">
-            <CommandsList commands={commands} />
+            <CommandsDisplay commands={commands} />
             <div className="fixed bottom-2 right-0">
               <button
                 className="mr-4 button-outline"
@@ -114,7 +114,7 @@ const Commands: NextPage = () => {
           </div>}
         </>}
         {!accessToken && <div className="fixed top-0 left-0 right-0 w-screen h-screen bg-background-light grow flex flex-col justify-center items-center z-30">
-          <CommandsList commands={commands} />
+          <CommandsDisplay commands={commands} />
           <div className="fixed bottom-2 right-0">
             <Link href="/login">
               <a className="mr-4 button-outline">
