@@ -24,8 +24,6 @@ export function CreateArticleModal({ createArticleOpen, setCreateModalOpen, crea
         onSubmit={async () => {
             if (articleExists) {
                 toast.error('Cet article existe déjà.');
-                setName('');
-                setSellPrice(0)
                 return; 
             }
 
