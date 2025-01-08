@@ -154,7 +154,7 @@ const Articles: NextPage = () => {
         )}
       </div>
       <EditArticleModal editingArticle={editingArticle} setEditingArticle={setEditingArticle} updateArticle={updateArticle} />
-      <CreateArticleModal createArticleOpen={createArticleOpen} setCreateModalOpen={setCreateModalOpen} createArticle={createArticle} />
+      <CreateArticleModal createArticleOpen={createArticleOpen} setCreateModalOpen={setCreateModalOpen} createArticle={createArticle} articles={articles} />
     </>
   )
 }
