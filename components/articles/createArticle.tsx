@@ -3,7 +3,7 @@ import { Category, IArticle } from "../../types/db";
 import { categories, categoryNames } from "../../utils/db-enum";
 import Modal from "../Modal";
 import Select from "../Select";
-import toast from 'react-hot-toast';
+import toast from "react-hot-toast";
 
 type CreateArticleModalProps = {
     createArticleOpen: boolean;
@@ -13,7 +13,7 @@ type CreateArticleModalProps = {
 }
 
 export function CreateArticleModal({ createArticleOpen, setCreateModalOpen, createArticle, articles }: CreateArticleModalProps) {
-    const [name, setName] = useState('');
+    const [name, setName] = useState("");
     const [category, setCategory] = useState(Category.COLD_DRINKS);
     const [sellPrice, setSellPrice] = useState(0);
     const [articleProducts, setArticleProducts] = useState<number[]>([]);
@@ -23,7 +23,7 @@ export function CreateArticleModal({ createArticleOpen, setCreateModalOpen, crea
         isOpen={createArticleOpen}
         onSubmit={async () => {
             if (articleExists) {
-                toast.error('Cet article existe déjà.');
+                toast.error("Cet article existe déjà.");
                 return; 
             }
 
@@ -33,12 +33,12 @@ export function CreateArticleModal({ createArticleOpen, setCreateModalOpen, crea
                 sell_price: sellPrice
             })
             setCreateModalOpen(false);
-            setName('');
+            setName("");
             setCategory(Category.COLD_DRINKS);
             setSellPrice(0);
             setArticleProducts([]);
         }}
-        onCancel={() => {setCreateModalOpen(false), setSellPrice(0), setName('')}}
+        onCancel={() => {setCreateModalOpen(false), setSellPrice(0), setName("")}}
         title="Créer un article"
         submitButtonText="Créer"
     >
