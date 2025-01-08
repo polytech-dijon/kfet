@@ -14,16 +14,16 @@ export const commandDeletionQueue = new Queue('commandDeletionQueue', { connecti
  * A more complicated solution is proposed here : https://docs.bullmq.io/patterns/timeout-jobs
  * See GitHub Issue : https://github.com/taskforcesh/bullmq/issues/632
  */
-new Worker("commandDeletionQueue", async (job) => {
+new Worker("commandDeletionQueue", async ({data:{id,expires_at}}: {data:{id:number, expires_at : string}}) => {
     let lineToRemove = await prisma.command.findFirst({
-        where: { id: job.data.id },
+        where: { id: id },
     });
-    if (lineToRemove?.status !== 'DONE') {
-        return;
-    }
-    if ((lineToRemove?.expires_at?.getUTCDate() ?? 0) <= new Date().getUTCDate()) {
+    if(!lineToRemove) return;
+    if (lineToRemove.status !== 'DONE') return;
+    if(!lineToRemove.expires_at) return;
+    if (lineToRemove.expires_at.getTime() === new Date(expires_at).getTime()) {
         await prisma.command.delete({
-            where: { id: job.data.id },
+            where: { id: id },
         });
     }
 }, { connection });
@@ -31,5 +31,5 @@ new Worker("commandDeletionQueue", async (job) => {
 
 export const schedulecommandDeletion = (commandId: number, expiresAt: Date) => {
     const delay = expiresAt.getTime() - new Date().getTime();
-    commandDeletionQueue.add(`${PREFIX}${commandId}`, { id: commandId }, { removeOnComplete: 1000, delay: delay });
+    commandDeletionQueue.add(`${PREFIX}${commandId}`, { id: commandId, expires_at : expiresAt }, { removeOnComplete: 1000, delay: delay });
 };
