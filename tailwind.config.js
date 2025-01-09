@@ -31,5 +31,10 @@ module.exports = {
       sans: ['"Source Sans Pro"', 'sans-serif']
     },
   },
+  safelist: [
+    {
+      pattern: /bg-(orange|green|)-(4|7)00/,
+    },
+  ],
   plugins: [],
 }
