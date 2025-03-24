@@ -6,16 +6,12 @@ services:
     env_file: ".env"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - pg-socket:/var/run/postgresql
-    networks:
-      - kfet-network
   cache:
     build:
       context: .
       dockerfile: Dockerfile.redis
     restart: always
-    volumes: 
-      - redis-socket:/var/run/redis
+    volumes:
       - cache:/data
   app:
     container_name: kfet-app
@@ -28,25 +24,11 @@ services:
     command: sh -c "npm install && npm run db:deploy && npm run build && npm run start"
     ports:
       - "3000:3000"
-    expose:
-      - "3000"
     depends_on:
       - db
-    networks:
-      - kfet-network
-    volumes: 
-      - redis-socket:/var/run/redis
-      - pg-socket:/var/run/postgresql
 volumes:
   postgres_data:
     name: kfet-postgres-data
   cache:
     name: kfet-cache
-  redis-socket:
-    name: kfet-redis-socket
-  pg-socket:
-    name: kfet-pg-socket
 
-networks:
-  kfet-network:
-    driver: bridge

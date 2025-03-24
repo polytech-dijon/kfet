@@ -2,8 +2,9 @@ import prisma from '../prisma'
 import { Queue } from 'bullmq';
 import { Worker } from 'bullmq';
 import Redis from 'ioredis';
+import { env } from 'process';
 
-const connection = new Redis({ path: "/var/run/redis/redis.sock", maxRetriesPerRequest: null });
+const connection = new Redis({ host : env.REDIS_HOST, port: Number(env.REDIS_PORT), maxRetriesPerRequest: null });
 const PREFIX = 'command_';
 
 export const commandDeletionQueue = new Queue('commandDeletionQueue', { connection });
