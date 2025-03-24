@@ -1,0 +1,11 @@
+# This file specifies which files and directories should be ignored by Docker when building the image.
+node_modules
+.env
+*.log
+dist
+build
+coverage
+*.tsbuildinfo
+.DS_Store
+npm-debug.log
+yarn-error.log
